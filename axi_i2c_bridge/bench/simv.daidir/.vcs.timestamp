@@ -565,10 +565,10 @@ COLORFGBG=15;0
 1640253534 ../rtl/axi_i2c_bridge.v
 1634110933 ///home/users/hamza.hassan/projects/axi_apb_bridge/RTL/axi_lite_if.sv
 1634110933 ///home/users/hamza.hassan/projects/axi_apb_bridge/RTL/axi_lite_pkg.sv
-1640339374 ../../axlite2wb/rtl/wbarbiter.sv
-1640339374 ../../axlite2wb/rtl/axilrd2wbsp.sv
-1640339374 ../../axlite2wb/rtl/axilwr2wbsp.sv
-1640339374 ../../axlite2wb/rtl/axlite2wbsp.sv
+1640344189 ../../axlite2wb/rtl/wbarbiter.sv
+1640343846 ../../axlite2wb/rtl/axilrd2wbsp.sv
+1640344241 ../../axlite2wb/rtl/axilwr2wbsp.sv
+1640343846 ../../axlite2wb/rtl/axlite2wbsp.sv
 1639640779 ../../i2c_core/rtl/i2c_master_top.v
 1636040505 ../../i2c_core/rtl/i2c_master_byte_ctrl.v
 1636029865 ../../i2c_core/rtl/i2c_master_bit_ctrl.v
@@ -582,5 +582,5 @@ COLORFGBG=15;0
 1543551927 /home/users/eda_tools/synopsys_instl_dir/vcs-mx/O-2018.09-SP1/linux64/lib/liberrorinf.so
 1543551833 /home/users/eda_tools/synopsys_instl_dir/vcs-mx/O-2018.09-SP1/linux64/lib/libsnpsmalloc.so
 1543551917 /home/users/eda_tools/synopsys_instl_dir/vcs-mx/O-2018.09-SP1/linux64/lib/libvfs.so
-1640340491 simv.daidir
+1640344264 simv.daidir
 -1 partitionlib

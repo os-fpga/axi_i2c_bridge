@@ -132,7 +132,7 @@ module	axilwr2wbsp #(
 	// o_wb_addr, o_wb_data, o_wb_sel
 	// {{{
 	always @(posedge i_clk)
-	if (!o_wb_stb || !i_wb_stall)
+	if ((!o_wb_stb || !i_wb_stall)&&(!o_wb_cyc))
 	begin
 		if (r_awvalid)
 			o_wb_addr <= r_addr;

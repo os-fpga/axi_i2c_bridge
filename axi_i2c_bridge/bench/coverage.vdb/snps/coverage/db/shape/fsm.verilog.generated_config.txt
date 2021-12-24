@@ -1,6 +1,6 @@
 // Synopsys, Inc.
 // User: hamza.hassan
-// Date: Fri Dec 24 15:08:02 2021
+// Date: Fri Dec 24 16:10:58 2021
 
 // ==================================================================================================
 // This config file prototype is produced from the last run using the complete list of extracted fsms.

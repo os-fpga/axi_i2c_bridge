@@ -1,7 +1,7 @@
 Command: /home/users/hamza.hassan/projects/AXI_I2C_Bridge/axi_i2c_bridge/bench/./simv +UVM_VERBOSITY=UVM_MEDIUM +UVM_TR_RECORD +UVM_LOG_RECORD +verbose=1 +ntb_random_seed=244 -l vcs.log
 Chronologic VCS simulator copyright 1991-2018
 Contains Synopsys proprietary information.
-Compiler version O-2018.09-SP1_Full64; Runtime version O-2018.09-SP1_Full64;  Dec 24 15:08 2021
+Compiler version O-2018.09-SP1_Full64; Runtime version O-2018.09-SP1_Full64;  Dec 24 16:11 2021
 UVM_INFO /home/users/eda_tools/synopsys_instl_dir/vcs-mx/O-2018.09-SP1/etc/uvm-1.2/src/base/uvm_root.svh(402) @ 0: reporter [UVM/RELNOTES] 
 ----------------------------------------------------------------
 UVM-1.2.Synopsys
@@ -24,29 +24,29 @@ UVM-1.2.Synopsys
 
       (Specify +UVM_NO_RELNOTES to turn off this notice)
 
-         0 read_data        222 test fail
-         1 read_data        222 test fail
-         2 read_data        222 test fail
-         3 read_data        222 test fail
-         4 read_data        222 test fail
-         5 read_data        222 test fail
-         6 read_data        222 test fail
-         7 read_data        222 test fail
-         8 read_data        222 test fail
-         9 read_data        222 test fail
-        10 read_data        222 test fail
-        11 read_data        222 test fail
-        12 read_data        222 test fail
-        13 read_data        222 test fail
-        14 read_data        222 test fail
-        15 read_data        222 test fail
-        16 read_data        222 test fail
-        17 read_data        222 test fail
-        18 read_data        222 test fail
-        19 read_data        222 test fail
+ write_data =          0 read_data =          0 test pass
+ write_data =          1 read_data =          1 test pass
+ write_data =          2 read_data =          2 test pass
+ write_data =          3 read_data =          3 test pass
+ write_data =          4 read_data =          4 test pass
+ write_data =          5 read_data =          5 test pass
+ write_data =          6 read_data =          6 test pass
+ write_data =          7 read_data =          7 test pass
+ write_data =          8 read_data =          8 test pass
+ write_data =          9 read_data =          9 test pass
+ write_data =         10 read_data =         10 test pass
+ write_data =         11 read_data =         11 test pass
+ write_data =         12 read_data =         12 test pass
+ write_data =         13 read_data =         13 test pass
+ write_data =         14 read_data =         14 test pass
+ write_data =         15 read_data =         15 test pass
+ write_data =         16 read_data =         16 test pass
+ write_data =         17 read_data =         17 test pass
+ write_data =         18 read_data =         18 test pass
+ write_data =         19 read_data =         19 test pass
 $finish called from file "tst_bench_top.sv", line 600.
 $finish at simulation time                 5070
            V C S   S i m u l a t i o n   R e p o r t 
 Time: 5070 ns
-CPU Time:      0.870 seconds;       Data structure size:   0.3Mb
-Fri Dec 24 15:08:12 2021
+CPU Time:      0.750 seconds;       Data structure size:   0.3Mb
+Fri Dec 24 16:11:05 2021
