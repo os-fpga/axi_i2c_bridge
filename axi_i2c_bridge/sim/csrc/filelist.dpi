@@ -1,8 +1,0 @@
-DPI_STUB_OBJS += ./../simv.daidir/vc_hdrs.o
-./../simv.daidir/vc_hdrs.o: ./../simv.daidir/vc_hdrs.c
-	@$(CC) -I/home/users/eda_tools/synopsys_instl_dir/vcs-mx/O-2018.09-SP1/include  -pipe -fPIC -DVCS    -I/home/users/eda_tools/synopsys_instl_dir/vcs-mx/O-2018.09-SP1/include  -fPIC -c -o ./../simv.daidir/vc_hdrs.o ./../simv.daidir/vc_hdrs.c
-	@strip -g ./../simv.daidir/vc_hdrs.o
-DPI_WRAPPER_OBJS += uM9F1_0x2aB.o
-uM9F1_0x2aB.o: uM9F1_0x2aB.c
-	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
-
