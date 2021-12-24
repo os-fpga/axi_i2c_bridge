@@ -1,0 +1,86 @@
+{
+    "_vcs_DPI_package": [
+        "_vcs_DPI_package",
+        "uM9F1",
+        "module",
+        1
+    ],
+    "uvm_pkg": [
+        "uvm_pkg",
+        "zr7M1",
+        "module",
+        5
+    ],
+    "axi_lite_pkg": [
+        "axi_lite_pkg",
+        "xJRie",
+        "module",
+        9
+    ],
+    "vcs_paramclassrepository": [
+        "vcs_paramclassrepository",
+        "hEeZs",
+        "module",
+        2
+    ],
+    "std": [
+        "std",
+        "reYIK",
+        "module",
+        4
+    ],
+    "i2c_master_top": [
+        "i2c_master_top",
+        "Kr4JE",
+        "module",
+        6
+    ],
+    "axi_lite_master": [
+        "axi_lite_master",
+        "gQjnN",
+        "module",
+        12
+    ],
+    "_vcs_unit__2474928418": [
+        "_vcs_unit__2474928418",
+        "hzKx4",
+        "module",
+        3
+    ],
+    "axilrd2wbsp": [
+        "axilrd2wbsp",
+        "FLSYy",
+        "module",
+        7
+    ],
+    "axi_lite_if": [
+        "axi_lite_if",
+        "ezc2T",
+        "module",
+        10
+    ],
+    "wbarbiter_0000": [
+        "wbarbiter_0000",
+        "zy0E1",
+        "module",
+        8
+    ],
+    "...MASTER...": [
+        "SIM",
+        "amcQw",
+        "module",
+        14
+    ],
+    "axi_i2c_bridge": [
+        "axi_i2c_bridge",
+        "Drsnh",
+        "module",
+        11
+    ],
+    "tst_bench_top": [
+        "tst_bench_top",
+        "sf4HQ",
+        "module",
+        13
+    ]
+}
