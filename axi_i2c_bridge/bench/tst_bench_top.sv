@@ -69,8 +69,8 @@
 //`include "timescale.v"
 import uvm_pkg::*;
 //`include "/home/users/hamza.hassan/projects/axi_apb_bridge/RTL/axi_lite_pkg.sv"
-import axi_lite_pkg::*;
-`include "/home/users/hamza.hassan/projects/axi_apb_bridge/RTL/axi_lite_master.sv"
+//import axi_lite_pkg::*;
+//`include "/home/users/hamza.hassan/projects/axi_apb_bridge/RTL/axi_lite_master.sv"
 
 
 /*
