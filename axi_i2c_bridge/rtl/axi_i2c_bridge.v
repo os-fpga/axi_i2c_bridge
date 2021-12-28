@@ -1,4 +1,13 @@
- 
+`include "../../i2c_core/rtl/timescale.v"
+`include "../../i2c_core/rtl/i2c_master_defines.v"
+`include "../../i2c_core/rtl/i2c_master_bit_ctrl.v"
+`include "../../i2c_core/rtl/i2c_master_byte_ctrl.v"
+`include "../../i2c_core/rtl/i2c_master_top.v"
+`include "../../axlite2wb/rtl/axlite2wbsp.sv"
+`include "../../axlite2wb/rtl/axilwr2wbsp.sv"
+`include "../../axlite2wb/rtl/axilrd2wbsp.sv"
+`include "../../axlite2wb/rtl/wbarbiter.sv"
+
 module axi_i2c_bridge 
 	(
 		clk,	// System clock
