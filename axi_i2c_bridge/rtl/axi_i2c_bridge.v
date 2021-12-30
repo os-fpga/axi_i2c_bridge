@@ -125,7 +125,8 @@ output sda_padoen_o;
 	wire [3:0]	wb_sel;
 	//
 
-		
+	wire wb_bridge_reset ;
+	
 	axlite2wbsp axit_to_wb_bridge
 	
 	      (
@@ -180,21 +181,23 @@ output sda_padoen_o;
 		.i_wb_stall(1'b0),
 		.i_wb_ack(ack),
 		.i_wb_data(dat_i),
-		.i_wb_err(1'b0)
+		.i_wb_err(1'b0),
 		// }}}
 		// }}}
+		.timeout_reset(wb_bridge_reset)
 	);
 //
 
 	assign dat_i = dat0_i;
 
+	wire i2c_reset = (!axi_reset_n) ? axi_reset_n : (!wb_bridge_reset) ? wb_bridge_reset : 1'b1 ; 
 	// hookup wishbone_i2c_master core
 	i2c_master_top i2c_top (
 
 		// wishbone interface
 		.wb_clk_i(clk),
 		.wb_rst_i(1'b0),
-		.arst_i(axi_reset_n),
+		.arst_i(i2c_reset),
 		.wb_adr_i(adr[2:0]),
 		.wb_dat_i(dat_o),
 		.wb_dat_o(dat0_i),

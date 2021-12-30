@@ -45,6 +45,7 @@ module axlite2wbsp #(
 		parameter		LGFIFO = 4,
 		parameter	[0:0]	OPT_READONLY  = 1'b0,
 		parameter	[0:0]	OPT_WRITEONLY = 1'b0,
+		parameter timeout_cycles        = 10,
 		localparam		AXILLSB = $clog2(C_AXI_DATA_WIDTH/8)
 		// }}}
 	) (
@@ -99,7 +100,10 @@ module axlite2wbsp #(
 		input	wire			i_wb_stall,
 		input	wire			i_wb_ack,
 		input	wire [(C_AXI_DATA_WIDTH-1):0]		i_wb_data,
-		input	wire			i_wb_err
+		input	wire			i_wb_err,
+		
+		//timeout_reset should be active low logic
+		output  wire                    timeout_reset
 		// }}}
 		// }}}
 	);
@@ -111,7 +115,7 @@ module axlite2wbsp #(
 	//
 	//
 	//
-
+	
 	wire	[(AW-1):0]			w_wb_addr, r_wb_addr;
 	wire	[(DW-1):0]			w_wb_data;
 	wire	[(DW/8-1):0]			w_wb_sel, r_wb_sel;
@@ -121,6 +125,32 @@ module axlite2wbsp #(
 	// verilator lint_off UNUSED
 	wire	r_wb_we, w_wb_we;
 
+	//timeout logic
+	// timout_counter
+	reg 	[7:0] timeout_cnt;
+	
+	always @(posedge i_clk,negedge i_axi_reset_n)begin
+	      if(!i_axi_reset_n)begin
+		timeout_cnt <= 0;
+	      end
+	      else if(o_wb_cyc)begin
+		   if(timeout_cnt<timeout_cycles) begin
+		      timeout_cnt <= timeout_cnt + 1; 
+		   end
+		   else begin
+		      timeout_cnt <= timeout_cnt;
+		   end
+	      end
+	      else begin
+		   timeout_cnt <= 0;
+	      end
+	      
+	
+	end
+	
+	assign timeout_reset = (timeout_cnt != timeout_cycles);
+	
+	//end timeout logic
 	assign	r_wb_we = 1'b0;
 	assign	w_wb_we = 1'b1;
 	// verilator lint_on  UNUSED
@@ -168,7 +198,7 @@ module axlite2wbsp #(
 			.o_wb_sel(  w_wb_sel),
 			.i_wb_stall(w_wb_stall),
 			.i_wb_ack(  w_wb_ack),
-			.i_wb_err(  w_wb_err)
+			.i_wb_err(  w_wb_err | !timeout_reset)
 			// }}}
 		);
 		// }}}
@@ -225,7 +255,7 @@ module axlite2wbsp #(
 			.i_wb_stall(r_wb_stall),
 			.i_wb_ack(  r_wb_ack),
 			.i_wb_data( i_wb_data),
-			.i_wb_err(  r_wb_err)
+			.i_wb_err(  r_wb_err | !timeout_reset)
 			// }}}
 		);
 		// }}}
