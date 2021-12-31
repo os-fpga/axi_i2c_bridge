@@ -89,18 +89,15 @@ module	axilrd2wbsp #(
 
 	localparam		FLEN=(1<<LGFIFO);
 
-	reg	[DW-1:0]	dfifo		[0:(FLEN-1)];
-	reg			fifo_full, fifo_empty;
-
-	reg	[LGFIFO:0]	r_first, r_mid, r_last;
-	wire	[LGFIFO:0]	next_first, next_last;
+	
+		
 	reg			wb_pending;
 	reg	[LGFIFO:0]	wb_outstanding;
 	wire	[DW-1:0]	read_data;
 	reg			err_state;
 	reg	[LGFIFO:0]	err_loc;
 	// }}}
-
+	reg     [DW-1:0]        captured_read_data ;
 	// o_wb_cyc, o_wb_stb
 	// {{{
 	initial	o_wb_cyc = 1'b0;
@@ -171,35 +168,7 @@ module	axilrd2wbsp #(
 	endcase
 	// }}}
 
-	assign	next_first = r_first + 1'b1;
-	assign	next_last  = r_last + 1'b1;
 
-	// fifo_full, fifo_empty
-	// {{{
-	initial	fifo_full  = 1'b0;
-	initial	fifo_empty = 1'b1;
-	always @(posedge i_clk)
-	if (w_reset)
-	begin
-		fifo_full  <= 1'b0;
-		fifo_empty <= 1'b1;
-	end else case({ (o_axi_rvalid)&&(i_axi_rready),
-				(i_axi_arvalid)&&(o_axi_arready) })
-	2'b01: begin
-		fifo_full  <= (next_first[LGFIFO-1:0] == r_last[LGFIFO-1:0])
-					&&(next_first[LGFIFO]!=r_last[LGFIFO]);
-		fifo_empty <= 1'b0;
-		end
-	2'b10: begin
-		fifo_full <= 1'b0;
-		fifo_empty <= 1'b0;
-		end
-	default: begin end
-	endcase
-	// }}}
-
-	// o_axi_arready
-	// {{{
 	initial	o_axi_arready = 1'b1;
 	always @(posedge i_clk)
 	if (w_reset)
@@ -215,65 +184,20 @@ module	axilrd2wbsp #(
 		// If we've already stalled on o_wb_stb, remain stalled until
 		// the bus clears
 		o_axi_arready <= 1'b0;
-	else if (fifo_full && (!o_axi_rvalid || !i_axi_rready))
-		// If the FIFO is full, we must remain not ready until at
-		// least one acknowledgment is accepted
-		o_axi_arready <= 1'b0;
 	else if ( (!o_axi_rvalid || !i_axi_rready)
 			&& (i_axi_arvalid && o_axi_arready))
-		o_axi_arready  <= (next_first[LGFIFO-1:0] != r_last[LGFIFO-1:0])
-					||(next_first[LGFIFO]==r_last[LGFIFO]);
+		o_axi_arready  <= 1'b1;
 	else
 		o_axi_arready <= 1'b1;
-	// }}}
-
-	// r_first
-	// {{{
-	initial	r_first = 0;
+	
 	always @(posedge i_clk)
-	if (w_reset)
-		r_first <= 0;
-	else if ((i_axi_arvalid)&&(o_axi_arready))
-		r_first <= r_first + 1'b1;
-	// }}}
+	if(w_reset)
+		captured_read_data         <= 0;
+	else if ((o_wb_cyc)&&((i_wb_ack)||(i_wb_err))) begin
+		captured_read_data         <= i_wb_data;
+	end	
 
-	// r_mid
-	// {{{
-	initial	r_mid = 0;
-	always @(posedge i_clk)
-	if (w_reset)
-		r_mid <= 0;
-	else if ((o_wb_cyc)&&((i_wb_ack)||(i_wb_err)))
-		r_mid <= r_mid + 1'b1;
-	else if ((err_state)&&(r_mid != r_first))
-		r_mid <= r_mid + 1'b1;
-	// }}}
-
-	// r_last
-	// {{{
-	initial	r_last = 0;
-	always @(posedge i_clk)
-	if (w_reset)
-		r_last <= 0;
-	else if ((o_axi_rvalid)&&(i_axi_rready))
-		r_last <= r_last + 1'b1;
-	// }}}
-
-	// Write to dfifo on data return
-	// {{{
-	always @(posedge i_clk)
-	if ((o_wb_cyc)&&((i_wb_ack)||(i_wb_err)))
-		dfifo[r_mid[(LGFIFO-1):0]] <= i_wb_data;
-	// }}}
-
-	// err_loc -- FIFO address of any error
-	// {{{
-	always @(posedge i_clk)
-	if ((o_wb_cyc)&&(i_wb_err))
-		err_loc <= r_mid;
-	// }}}
-
-	assign	read_data = dfifo[r_last[LGFIFO-1:0]];
+	assign	read_data = captured_read_data;
 	assign	o_axi_rdata = read_data[DW-1:0];
 
 	// o_axi_rresp
@@ -288,16 +212,11 @@ module	axilrd2wbsp #(
 			o_axi_rresp <= 2'b00;
 		else if ((!err_state)&&(o_wb_cyc)&&(i_wb_err))
 		begin
-			if (o_axi_rvalid)
-				o_axi_rresp <= (r_mid == next_last) ? 2'b10 : 2'b00;
-			else
-				o_axi_rresp <= (r_mid == r_last) ? 2'b10 : 2'b00;
+			o_axi_rresp <= 2'b10;
+			
 		end else if (err_state)
 		begin
-			if (next_last == err_loc)
-				o_axi_rresp <= 2'b10;
-			else if (o_axi_rresp[1])
-				o_axi_rresp <= 2'b11;
+			o_axi_rresp <= 2'b10;
 		end else
 			o_axi_rresp <= 0;
 	end
@@ -309,10 +228,9 @@ module	axilrd2wbsp #(
 	always @(posedge i_clk)
 	if (w_reset)
 		err_state <= 0;
-	else if (r_first == r_last)
-		err_state <= 0;
 	else if ((o_wb_cyc)&&(i_wb_err))
 		err_state <= 1'b1;
+	else    err_state <= 0;	
 	// }}}
 
 	// o_axi_rvalid
@@ -325,19 +243,18 @@ module	axilrd2wbsp #(
 		o_axi_rvalid <= 1'b1;
 	else if ((o_axi_rvalid)&&(i_axi_rready))
 	begin
-		if (err_state)
-			o_axi_rvalid <= (next_last != r_first);
-		else
-			o_axi_rvalid <= (next_last != r_mid);
+		o_axi_rvalid <= 0;
 	end
 	// }}}
 
 	// Make Verilator happy
 	// {{{
 	// verilator lint_off UNUSED
+	/*
 	wire	unused;
 	assign	unused = &{ 1'b0, i_axi_arprot,
 			i_axi_araddr[AXI_LSBS-1:0], fifo_empty };
+			*/
 	// verilator lint_on  UNUSED
 	// }}}
 // }}}

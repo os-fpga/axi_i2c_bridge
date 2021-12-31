@@ -314,7 +314,8 @@ module axlite2wbsp #(
 		// {{{
 		wbarbiter #(
 			// {{{
-			.DW(DW), .AW(AW)
+			
+			.DW(DW), .AW(AW) , .OPT_ZERO_ON_IDLE(1'b1)
 			// }}}
 		) readorwrite(
 			// {{{
