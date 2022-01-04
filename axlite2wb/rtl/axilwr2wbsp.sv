@@ -110,7 +110,7 @@ module	axilwr2wbsp #(
 		&&((r_wvalid)|| (i_axi_wvalid && o_axi_wready));
 
 	assign	axi_write_accepted =
-		(!o_wb_stb || !i_wb_stall) && (!fifo_full) && (!err_state)
+		(!o_wb_stb || !i_wb_stall) && (!err_state)
 			&& (pending_axi_write);
 
 	// o_wb_cyc, o_wb_stb
@@ -212,10 +212,7 @@ module	axilwr2wbsp #(
 		o_axi_awready <= 1'b0;
 	else if ((!o_axi_bvalid || !i_axi_bready)
 			&& (r_awvalid || (i_axi_awvalid && o_axi_awready)))
-		// If ever the FIFO becomes full, we must immediately drop
-		// the o_axi_awready signal
-		o_axi_awready  <= (next_first[LGFIFO-1:0] != r_last[LGFIFO-1:0])
-					&&(next_first[LGFIFO]==r_last[LGFIFO]);
+		o_axi_awready  <= 1'b1;
 	else
 		o_axi_awready <= 1'b1;
 	// }}}
@@ -249,8 +246,7 @@ module	axilwr2wbsp #(
 			&& (i_axi_wvalid && o_axi_wready))
 		// If ever the FIFO becomes full, we must immediately drop
 		// the o_axi_wready signal
-		o_axi_wready  <= (next_first[LGFIFO-1:0] != r_last[LGFIFO-1:0])
-					&&(next_first[LGFIFO]==r_last[LGFIFO]);
+		o_axi_wready  <= 1'b1;
 	else
 		o_axi_wready <= 1'b1;
 	// }}}
@@ -277,70 +273,7 @@ module	axilwr2wbsp #(
 	endcase
 	// }}}
 
-	assign	next_first = r_first + 1'b1;
-	assign	next_last  = r_last + 1'b1;
 
-	// fifo_full, fifo_empty
-	// {{{
-	initial	fifo_full  = 1'b0;
-	initial	fifo_empty = 1'b1;
-	always @(posedge i_clk)
-	if (w_reset)
-	begin
-		fifo_full  <= 1'b0;
-		fifo_empty <= 1'b1;
-	end else case({ (o_axi_bvalid)&&(i_axi_bready),
-				(axi_write_accepted) })
-	2'b01: begin
-		fifo_full  <= (next_first[LGFIFO-1:0] == r_last[LGFIFO-1:0])
-					&&(next_first[LGFIFO]!=r_last[LGFIFO]);
-		fifo_empty <= 1'b0;
-		end
-	2'b10: begin
-		fifo_full <= 1'b0;
-		fifo_empty <= 1'b0;
-		end
-	default: begin end
-	endcase
-	// }}}
-
-	// r_first
-	// {{{
-	initial	r_first = 0;
-	always @(posedge i_clk)
-	if (w_reset)
-		r_first <= 0;
-	else if (axi_write_accepted)
-		r_first <= r_first + 1'b1;
-	// }}}
-
-	// r_mid
-	// {{{
-	initial	r_mid = 0;
-	always @(posedge i_clk)
-	if (w_reset)
-		r_mid <= 0;
-	else if ((o_wb_cyc)&&((i_wb_ack)||(i_wb_err)))
-		r_mid <= r_mid + 1'b1;
-	else if ((err_state)&&(r_mid != r_first))
-		r_mid <= r_mid + 1'b1;
-	// }}}
-
-	// r_last
-	// {{{
-	initial	r_last = 0;
-	always @(posedge i_clk)
-	if (w_reset)
-		r_last <= 0;
-	else if ((o_axi_bvalid)&&(i_axi_bready))
-		r_last <= r_last + 1'b1;
-	// }}}
-
-	// err_loc
-	// {{{
-	always @(posedge i_clk)
-	if ((o_wb_cyc)&&(i_wb_err))
-		err_loc <= r_mid;
 	// }}}
 
 	// o_axi_bresp
@@ -355,16 +288,10 @@ module	axilwr2wbsp #(
 			o_axi_bresp <= 2'b00;
 		else if ((!err_state)&&(o_wb_cyc)&&(i_wb_err))
 		begin
-			if (o_axi_bvalid)
-				o_axi_bresp <= (r_mid == next_last) ? 2'b10 : 2'b00;
-			else
-				o_axi_bresp <= (r_mid == r_last) ? 2'b10 : 2'b00;
+			o_axi_bresp <= 2'b10;
 		end else if (err_state)
 		begin
-			if (next_last == err_loc)
-				o_axi_bresp <= 2'b10;
-			else if (o_axi_bresp[1])
-				o_axi_bresp <= 2'b11;
+			o_axi_bresp <= 2'b10;
 		end else
 			o_axi_bresp <= 0;
 	end
@@ -376,10 +303,10 @@ module	axilwr2wbsp #(
 	always @(posedge i_clk)
 	if (w_reset)
 		err_state <= 0;
-	else if (r_first == r_last)
-		err_state <= 0;
 	else if ((o_wb_cyc)&&(i_wb_err))
 		err_state <= 1'b1;
+	else err_state <= 0;	
+		
 	// }}}
 
 	// o_axi_bvalid
@@ -392,10 +319,7 @@ module	axilwr2wbsp #(
 		o_axi_bvalid <= 1'b1;
 	else if ((o_axi_bvalid)&&(i_axi_bready))
 	begin
-		if (err_state)
-			o_axi_bvalid <= (next_last != r_first);
-		else
-			o_axi_bvalid <= (next_last != r_mid);
+		o_axi_bvalid <= 1'b0;
 	end
 	// }}}
 

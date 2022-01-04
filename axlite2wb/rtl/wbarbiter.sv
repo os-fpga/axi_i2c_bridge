@@ -177,9 +177,9 @@ module	wbarbiter #(
 		// don't matter.
 		//
 		assign o_stb     = (o_cyc)? ((r_a_owner) ? i_a_stb : i_b_stb):0;
-		assign o_adr     = (o_stb)? ((r_a_owner) ? i_a_adr : i_b_adr):0;
-		assign o_dat     = (o_stb)? ((r_a_owner) ? i_a_dat : i_b_dat):0;
-		assign o_sel     = (o_stb)? ((r_a_owner) ? i_a_sel : i_b_sel):0;
+		assign o_adr     = (o_cyc)? ((r_a_owner) ? i_a_adr : i_b_adr):0;
+		assign o_dat     = (o_cyc)? ((r_a_owner) ? i_a_dat : i_b_dat):0;
+		assign o_sel     = (o_cyc)? ((r_a_owner) ? i_a_sel : i_b_sel):0;
 		assign o_a_ack   = (o_cyc)&&( r_a_owner) ? i_ack   : 1'b0;
 		assign o_b_ack   = (o_cyc)&&(!r_a_owner) ? i_ack   : 1'b0;
 		assign o_a_stall = (o_cyc)&&( r_a_owner) ? i_stall : 1'b1;
