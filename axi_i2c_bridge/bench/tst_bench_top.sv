@@ -190,9 +190,14 @@ axi_lite_master axi_lite_master_DUT(
 	);
 
         // create i2c lines
+        /*
+        assign scl = scl0_oen ? 1'bz : scl0_o;
+        assign sda = sda0_oen ? 1'bz : sda0_o;
+        */
+        
 	delay m0_scl (scl0_oen ? 1'bz : scl0_o, scl),
 	      m0_sda (sda0_oen ? 1'bz : sda0_o, sda);
-
+	
 	pullup p1(scl); // pullup scl line
 	pullup p2(sda); // pullup sda line
 
@@ -206,7 +211,15 @@ initial begin
     areset_n = 1'b0; 
     #30;  
     areset_n = 1'b1; 
-    #500000;
+    #500;
+    release scl;
+    /*
+    while (scl) #1;
+    force scl= 1'b0;
+    #100000;
+    release scl;
+    */
+      #5000000000;
    $finish;
  
 end
@@ -216,16 +229,204 @@ typedef enum logic [3 : 0] {start, write_data_state, write_resp, read_data_state
 //write to the command register either read or write
 //keep monitoring the status register by doing reads from axi master 
 //read the data from receive register
-//typedef enum logic [3 : 0] {start, write_slave_addr_to_txr, write_c, read_data_state, read_resp, match,finish} i2c_start_sequence;
-
-
+//typedef enum logic [3 : 0] {start_i2c, write_slave_addr_to_txr,write_resp_i2c, write_command, wait_for_ack,finish_i2c} i2c_start_sequence;
+//
+int state = 0;
+int initial_state = 0;
 
 test_state test_state_ = start;
+//i2c_start_sequence test_state_i2c = start_i2c;
 int repetetions = 0;
 int slave_no    = 1;
+bit waiting_read_resp = 1'b0;
+bit waiting = 1'b0;
+bit check_tip = 1'b1;
+
+parameter write_txr_addr = 3;
+parameter read_txr_addr  = 5;
+
+parameter write_cr_addr = 4;
+parameter read_cr_addr  = 6;
+
+parameter read_sr_addr  = 4;
+
+parameter write_ctr_addr = 2;
+parameter read_ctr_addr  = 2;
+
+parameter read_rxr_addr   = 3;
+
+parameter write_pre_scaler_low_addr = 0;
+
+/*
+read_addresses
+	    3'b000: wb_dat_o <= #1 prer[ 7:0]; same write address 
+	    3'b001: wb_dat_o <= #1 prer[15:8]; same write address 
+	    
+	    3'b010: wb_dat_o <= #1 ctr; same write address 
+	    
+	    3'b011: wb_dat_o <= #1 rxr; // write is transmit register (txr)
+	    
+	    3'b100: wb_dat_o <= #1 sr;  // write is command register (cr)
+	    
+	    3'b101: wb_dat_o <= #1 txr; // write address  = 3'b011
+	    
+	    3'b110: wb_dat_o <= #1 cr;  write address = 3'b100
+	    
+	    3'b111: wb_dat_o <= #1 0;   // reserved
+*/
+/*
+write addresses
 
 
-   always @(posedge vif.clk) begin
+*/
+always @(posedge vif.clk) begin
+      i2c_start();
+      //test_zero();
+
+end
+
+task write_to_i2c_slave(int addr,int data);
+
+     if(state == initial_state) 	  blocking_write(write_pre_scaler_low_addr,{8'hc8}); // enabling core by writing to control register
+     else if(state == (initial_state+1))  blocking_write(write_ctr_addr,{8'b10000000});
+     else if(state == (initial_state+2))  blocking_write(write_txr_addr,{SADR,1'b0});   // writing to transmit register the slave address with write flag
+     else if(state == (initial_state+3))  blocking_write(write_cr_addr,{8'b10010000});
+     else if(state == (initial_state+4))  blocking_read(read_sr_addr,1,-1);     // read the status register for TIP Flag slave address with write flag
+     else if(state == (initial_state+5))  begin
+	      if((read_data & {8'b00000010}) == 0) begin
+		$display(" Transfered Address to I2C Slave");
+		state += 1;
+	      end
+	      else blocking_read(read_sr_addr,0,-1);  
+     end 
+     else if(state == (initial_state+6))  blocking_write(write_txr_addr,addr);
+     else if(state == (initial_state+7))  blocking_write(write_cr_addr,{8'b00010000});
+     else if(state == (initial_state+8))  blocking_read(read_sr_addr,1,-1);     // read the status register for TIP Flag slave address with write flag
+     else if(state == (initial_state+9))  begin
+	      if((read_data & {8'b00000010}) == 0) begin
+		$display(" Transfered Write Address to I2C Slave");
+		state += 1;
+	      end
+	      else blocking_read(read_sr_addr,0,-1);  
+     end 
+     else if(state == (initial_state+10))  blocking_write(write_txr_addr,data);
+     else if(state == (initial_state+11))  blocking_write(write_cr_addr,{8'b00010000});
+     else if(state == (initial_state+12))  blocking_read(read_sr_addr,1,-1);     // read the status register for TIP Flag slave address with write flag
+     else if(state == (initial_state+13))  begin
+	      if((read_data & {8'b00000010}) == 0) begin
+		$display(" Transfered Write Data to I2C Slave");
+		state += 1;
+	      end
+	      else blocking_read(read_sr_addr,0,-1);  
+     end
+     else if(state == (initial_state+14)) begin
+     
+	  initial_state += 1;
+	  state = initial_state;
+     end
+      
+      
+endtask: write_to_i2c_slave
+  
+task read_from_i2c_slave();
+
+     if(state == initial_state) 	  blocking_write(write_pre_scaler_low_addr,{8'hc8}); // enabling core by writing to control register
+     else if(state == (initial_state+1))  blocking_write(write_ctr_addr,{8'b10000000});
+     else if(state == (initial_state+2))  blocking_write(write_txr_addr,{SADR,1'b1});   // writing to transmit register the slave address with write flag
+     else if(state == (initial_state+3))  blocking_write(write_cr_addr,{8'b10010000});
+     else if(state == (initial_state+4))  blocking_read(read_sr_addr,1,-1);     // read the status register for TIP Flag slave address with write flag
+     else if(state == (initial_state+5))  begin
+	      if((read_data & {8'b00000010}) == 0) begin
+		$display(" Transfered Address to I2C Slave");
+		state += 1;
+	      end
+	      else blocking_read(read_sr_addr,0,-1);  
+     end
+     else  if(state == (initial_state+6)) begin
+	  //$display(" Data Received After Read ",read_data);
+	  initial_state += 1;
+	  state = initial_state;  
+     end
+     /*
+     //else if(state == (initial_state+6))  blocking_write(write_txr_addr,addr);
+     else if(state == (initial_state+6))  blocking_write(write_cr_addr,{8'b00100000});
+     else if(state == (initial_state+7))  blocking_read(read_sr_addr,1,-1);     // read the status register for TIP Flag slave address with write flag
+     else if(state == (initial_state+8))  begin
+	      if((read_data & {8'b00000010}) == 0) begin
+		$display(" Received Read Data from I2C Slave");
+		state += 1;
+	      end
+	      else blocking_read(read_sr_addr,0,-1);  
+     end 
+     */
+     /*
+     else if(state == (initial_state+9)) begin
+     
+	  initial_state += 1;
+	  state = initial_state;
+     end
+     */ 
+      
+endtask: read_from_i2c_slave
+  
+
+task i2c_start();
+
+	
+	if(initial_state == 0) 	     write_to_i2c_slave(0,8'h55);  
+	else if(initial_state == 1)  write_to_i2c_slave(1,8'hAD);
+	else if(initial_state == 2)  write_to_i2c_slave(0,8'hc8);
+	else if(initial_state == 3)  read_from_i2c_slave();
+	else $finish;
+	
+	
+endtask: i2c_start
+
+task blocking_write(int addr,int data,int inc_state = 1);
+	if(!waiting) begin
+	  write(data,addr); //enable core by writing to  to txr
+	  waiting = 1'b1;
+	end
+	else begin
+	  if(axi_lite_master_vif.s_axi_bvalid)begin 
+	    waiting = 1'b0;
+	    if(inc_state==1) state = state + 1; //checking write response
+	  end
+	end
+	
+endtask: blocking_write
+
+task blocking_read(int addr,inc_state = 1, compare = -1);
+	if(!waiting) begin
+	  read(addr); //enable core by writing to  to txr
+	  waiting = 1'b1;
+	end
+	else begin
+	  if(axi_lite_master_vif.s_axi_rvalid)begin
+	    read_data   = axi_lite_master_vif.s_axi_rdata;
+	    if(compare>=0) begin
+	      if(read_data != compare) begin
+		  $display(" read_data = ",read_data ," write_data = " ,compare," Read data is not equal to Write data. FAIL");
+		  //$finish;
+	      end
+	      else begin
+		  $display(" read_data = ",read_data ," write_data = " ,compare," Read data is equal to Write data. PASS");
+		  waiting = 1'b0;
+		  if(inc_state == 1) state += 1; //checking write response
+		  
+	      end
+	    end
+	    else begin
+	      waiting = 1'b0;
+	      if(inc_state == 1) state += 1; //checking write response
+	    end
+	  end
+	end
+
+endtask: blocking_read
+   
+task test_zero();
+
 	if(test_state_ == start) begin
 		test_state_ <= write_data_state;
 				
@@ -270,21 +471,10 @@ int slave_no    = 1;
 			test_state_ <= finish;
 			$finish;
 	end
-   end
 
 
- 
+endtask: test_zero
 
-
-task write_tx_reg(int data);
-	write(data,12); //3 is the tx address // 12 is the tx register address with appended zeros
-	
-endtask: write_tx_reg
-	
-task read_rx_reg();
-	read(20); //3 is the tx address // 12 is the tx register address with appended zeros
-endtask: read_rx_reg
-	
 task write(int data, int address);
         start_write = 1;
   	start_read  = 0;

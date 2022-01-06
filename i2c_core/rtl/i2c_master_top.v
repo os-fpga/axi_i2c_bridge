@@ -177,7 +177,7 @@ module i2c_master_top(
 	always @(posedge wb_clk_i or negedge rst_i)
 	  if (!rst_i)
 	    begin
-	        prer <= #1 16'hdead;
+	        prer <= #1 16'h000f;
 	        ctr  <= #1  8'h0;
 	        txr  <= #1  8'h0;
 	    end
