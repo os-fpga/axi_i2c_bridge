@@ -39,7 +39,7 @@ module	axilwr2wbsp #(
 		// {{{
 		parameter C_AXI_DATA_WIDTH	= 32,
 		parameter C_AXI_ADDR_WIDTH	= 28,
-		localparam	AXI_LSBS = $clog2(C_AXI_DATA_WIDTH/8),
+		localparam	AXI_LSBS = $clog2(C_AXI_DATA_WIDTH)-3,
 		localparam AW			= C_AXI_ADDR_WIDTH-AXI_LSBS,
 		parameter LGFIFO                =  3,
 		localparam	DW = C_AXI_DATA_WIDTH
@@ -52,7 +52,7 @@ module	axilwr2wbsp #(
 		// {{{
 		input	wire			i_axi_awvalid,
 		output	reg			o_axi_awready,
-		input	wire	[AW-1:0]	i_axi_awaddr,
+		input	wire	[AW+1:0]	i_axi_awaddr,
 		input	wire	[2:0]		i_axi_awprot,
 		// }}}
 		// AXI write data channel signals
@@ -137,8 +137,7 @@ module	axilwr2wbsp #(
 		if (r_awvalid)
 			o_wb_addr <= r_addr;
 		else
-		//  o_wb_addr <= i_axi_awaddr[AW+1:AXI_LSBS];
-		    o_wb_addr <= i_axi_awaddr;
+			o_wb_addr <= i_axi_awaddr[AW+1:AXI_LSBS];
 
 		if (r_wvalid)
 		begin
@@ -158,7 +157,7 @@ module	axilwr2wbsp #(
 	begin
 		if ((i_axi_awvalid)&&(o_axi_awready))
 		begin
-			r_addr <= i_axi_awaddr;
+			r_addr <= i_axi_awaddr[AW+1:AXI_LSBS];
 			r_awvalid <= (!axi_write_accepted);
 		end else if (axi_write_accepted)
 			r_awvalid <= 1'b0;
@@ -329,7 +328,7 @@ module	axilwr2wbsp #(
 	// verilator lint_off UNUSED
 	wire	unused;
 	assign	unused = &{ 1'b0, i_axi_awprot,
-				fifo_empty };
+				fifo_empty, i_axi_awaddr[AXI_LSBS-1:0] };
 	// verilator lint_on  UNUSED
 	// }}}
 // }}}

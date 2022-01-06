@@ -38,8 +38,8 @@ module	axilrd2wbsp #(
 		// {{{
 		parameter C_AXI_DATA_WIDTH	= 32,
 		parameter C_AXI_ADDR_WIDTH	= 28,
-		localparam	AXI_LSBS = $clog2(C_AXI_DATA_WIDTH/8),
-		localparam	AW		= C_AXI_ADDR_WIDTH-AXI_LSBS,
+		parameter AXILLSB		= $clog2(C_AXI_DATA_WIDTH/8),
+		localparam	AW		= C_AXI_ADDR_WIDTH-AXILLSB,
 		localparam	DW		= C_AXI_DATA_WIDTH,
 		parameter LGFIFO                =  3
 		// }}}
@@ -52,7 +52,7 @@ module	axilrd2wbsp #(
 		// {{{
 		input	wire			i_axi_arvalid,
 		output	reg			o_axi_arready,
-		input	wire	[AW-1:0]	i_axi_araddr,
+		input	wire	[C_AXI_ADDR_WIDTH-1:0]	i_axi_araddr,
 		input	wire	[2:0]		i_axi_arprot,
 		// }}}
 		// AXI read data channel signals
@@ -79,7 +79,7 @@ module	axilrd2wbsp #(
 
 	// Local declarations
 	// {{{
-	
+	localparam	AXI_LSBS = $clog2(C_AXI_DATA_WIDTH)-3;
 
 	wire	w_reset;
 	assign	w_reset = (!i_axi_reset_n);
@@ -120,7 +120,7 @@ module	axilrd2wbsp #(
 	if (r_stb && !i_wb_stall)
 		o_wb_addr <= r_addr;
 	else if ((o_axi_arready)&&((!o_wb_stb)||(!i_wb_stall)))
-		o_wb_addr <= i_axi_araddr;
+		o_wb_addr <= i_axi_araddr[AW+1:AXI_LSBS];
 	// }}}
 
 	// o_wb_sel
@@ -137,7 +137,7 @@ module	axilrd2wbsp #(
 		if ((i_axi_arvalid)&&(o_axi_arready)&&(o_wb_stb)&&(i_wb_stall))
 		begin
 			r_stb  <= 1'b1;
-			r_addr <= i_axi_araddr;
+			r_addr <= i_axi_araddr[AW+1:AXI_LSBS];
 		end else if ((!i_wb_stall)||(!o_wb_cyc))
 			r_stb <= 1'b0;
 
