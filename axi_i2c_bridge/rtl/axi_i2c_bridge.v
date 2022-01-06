@@ -8,6 +8,9 @@
 `include "../../axlite2wb/rtl/axilrd2wbsp.sv"
 `include "../../axlite2wb/rtl/wbarbiter.sv"
 
+`include "../../axlite2wb/rtl/wb_width.sv"
+`include "../../axlite2wb/rtl/num_ones_for.sv"
+
 module axi_i2c_bridge 
 	(
 		clk,	// System clock
@@ -118,9 +121,17 @@ output sda_padoen_o;
 
 	reg [7:0] q, qq;
 
-	wire scl, scl0_o, scl0_oen;
-	wire sda, sda0_o, sda0_oen;
-
+	wire scl, scl_o, scl_oen;
+	wire sda, sda_o, sda_oen;
+	
+	assign scl = scl_pad_i;
+	assign sda = sda_pad_i;
+	
+	assign scl_pad_o = scl_o;
+	assign scl_padoen_o = scl_oen;
+	
+	assign sda_pad_o = sda_o;       // SDA-line output (always 1'b0)
+	assign sda_padoen_o = sda_oen;
 	
 	wire [3:0]	wb_sel;
 	//
@@ -209,11 +220,11 @@ output sda_padoen_o;
 
 		// i2c signals
 		.scl_pad_i(scl),
-		.scl_pad_o(scl0_o),
-		.scl_padoen_o(scl0_oen),
+		.scl_pad_o(scl_o),
+		.scl_padoen_o(scl_oen),
 		.sda_pad_i(sda),
-		.sda_pad_o(sda0_o),
-		.sda_padoen_o(sda0_oen)
+		.sda_pad_o(sda_o),
+		.sda_padoen_o(sda_oen)
 	);
 
 
