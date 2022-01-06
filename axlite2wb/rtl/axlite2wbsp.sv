@@ -42,14 +42,11 @@ module axlite2wbsp #(
 		// {{{
 		parameter C_AXI_DATA_WIDTH	= 32,// Width of the AXI R&W data
 		parameter C_AXI_ADDR_WIDTH	= 28,	// AXI Address width
-		parameter WB_DATA_WIDTH     = 8,
-		parameter GRANULARITY       = 8, // Wishbone data bus granularity. Only 8 bit support is yet available
 		parameter		LGFIFO = 4,
 		parameter	[0:0]	OPT_READONLY  = 1'b0,
 		parameter	[0:0]	OPT_WRITEONLY = 1'b0,
 		parameter timeout_cycles        = 10,
-		//localparam		AXILLSB          = $clog2(C_AXI_DATA_WIDTH/8),
-		localparam      ADDR_LOWER_LIMIT = $clog2(WB_DATA_WIDTH/GRANULARITY)
+		localparam		AXILLSB = $clog2(C_AXI_DATA_WIDTH/8)
 		// }}}
 	) (
 		// {{{
@@ -97,14 +94,12 @@ module axlite2wbsp #(
 		output	wire			o_wb_cyc,
 		output	wire			o_wb_stb,
 		output	wire			o_wb_we,
-		//ADDR_LOWER_LIMIT
-		output	wire [C_AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT-1:0]	o_wb_addr,
-		//output	wire [C_AXI_ADDR_WIDTH-AXILLSB-1:0]	o_wb_addr,
-		output	wire [WB_DATA_WIDTH-1:0]		    o_wb_data,
-		output	wire [WB_DATA_WIDTH/8-1:0]		o_wb_sel,
+		output	wire [C_AXI_ADDR_WIDTH-AXILLSB-1:0]	o_wb_addr,
+		output	wire [C_AXI_DATA_WIDTH-1:0]		o_wb_data,
+		output	wire [C_AXI_DATA_WIDTH/8-1:0]		o_wb_sel,
 		input	wire			i_wb_stall,
 		input	wire			i_wb_ack,
-		input	wire [(WB_DATA_WIDTH-1):0]		i_wb_data,
+		input	wire [(C_AXI_DATA_WIDTH-1):0]		i_wb_data,
 		input	wire			i_wb_err,
 		
 		//timeout_reset should be active low logic
@@ -115,8 +110,8 @@ module axlite2wbsp #(
 
 	// Local definitions
 	// {{{
-	localparam DW = WB_DATA_WIDTH;
-	localparam AW = C_AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT;
+	localparam DW = C_AXI_DATA_WIDTH;
+	localparam AW = C_AXI_ADDR_WIDTH-AXILLSB;
 	//
 	//
 	//
@@ -160,29 +155,6 @@ module axlite2wbsp #(
 	assign	w_wb_we = 1'b1;
 	// verilator lint_on  UNUSED
 
-	wire [(WB_DATA_WIDTH-1):0] i_axi_param_wdata;
-	wire [(WB_DATA_WIDTH/8-1):0] i_axi_param_wstrb;
-	wire [C_AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT-1:0] i_axi_param_awaddr;
-	wire [C_AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT-1:0] i_axi_param_araddr;
-
-	// This combinational logic based module converts AXI data bus width
-	// into WB data bus width and adjusts AXI strobe as well.
-	wb_width  #(
-        .AXI_DATA_WIDTH (C_AXI_DATA_WIDTH),
-        .WB_DATA_WIDTH (WB_DATA_WIDTH),
-        .AXI_ADDR_WIDTH (C_AXI_ADDR_WIDTH),
-        .GRANULARITY(GRANULARITY)
-        ) width_instance (
-        .in_data(i_axi_wdata),
-        .in_strb(i_axi_wstrb),
-        .out_data(i_axi_param_wdata),
-        .out_strb(i_axi_param_wstrb),
-        .in_write_addr(i_axi_awaddr),
-        .out_write_addr(i_axi_param_awaddr),
-        .in_read_addr(i_axi_araddr),
-        .out_read_addr(i_axi_param_araddr)
-        );
-
 	// }}}
 	////////////////////////////////////////////////////////////////////////
 	//
@@ -197,7 +169,7 @@ module axlite2wbsp #(
 		axilwr2wbsp #(
 			// {{{
 			// .F_LGDEPTH(F_LGDEPTH),
-			.C_AXI_DATA_WIDTH(WB_DATA_WIDTH),
+			// .C_AXI_DATA_WIDTH(C_AXI_DATA_WIDTH),
 			.C_AXI_ADDR_WIDTH(C_AXI_ADDR_WIDTH), // .AW(AW),
 			.LGFIFO(LGFIFO)
 			// }}}
@@ -207,13 +179,13 @@ module axlite2wbsp #(
 			//
 			.i_axi_awvalid(i_axi_awvalid),
 			.o_axi_awready(o_axi_awready),
-			.i_axi_awaddr( i_axi_param_awaddr),
+			.i_axi_awaddr( i_axi_awaddr),
 			.i_axi_awprot( i_axi_awprot),
 			//
 			.i_axi_wvalid( i_axi_wvalid),
 			.o_axi_wready( o_axi_wready),
-			.i_axi_wdata(  i_axi_param_wdata),
-			.i_axi_wstrb(  i_axi_param_wstrb),
+			.i_axi_wdata(  i_axi_wdata),
+			.i_axi_wstrb(  i_axi_wstrb),
 			//
 			.o_axi_bvalid(o_axi_bvalid),
 			.i_axi_bready(i_axi_bready),
@@ -258,7 +230,7 @@ module axlite2wbsp #(
 		// {{{
 		axilrd2wbsp #(
 			// {{{
-		    .C_AXI_DATA_WIDTH(WB_DATA_WIDTH),
+			// .C_AXI_DATA_WIDTH(C_AXI_DATA_WIDTH),
 			.C_AXI_ADDR_WIDTH(C_AXI_ADDR_WIDTH),
 			.LGFIFO(LGFIFO)
 			// }}}
@@ -268,7 +240,7 @@ module axlite2wbsp #(
 			//
 			.i_axi_arvalid(i_axi_arvalid),
 			.o_axi_arready(o_axi_arready),
-			.i_axi_araddr( i_axi_param_araddr),
+			.i_axi_araddr( i_axi_araddr),
 			.i_axi_arprot( i_axi_arprot),
 			//
 			.o_axi_rvalid(o_axi_rvalid),
