@@ -105,7 +105,7 @@ output sda_pad_o;       // SDA-line output (always 1'b0)
 output sda_padoen_o;
 
 
-	reg  clk;
+	wire  clk;
 	reg  rstn;
 
 	wire [31:0] adr;

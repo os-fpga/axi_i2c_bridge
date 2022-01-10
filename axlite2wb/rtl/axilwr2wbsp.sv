@@ -34,12 +34,21 @@
 //
 //
 `default_nettype	none
+`define CLOG2(x) \
+   (x <= 2) ? 1 : \
+   (x <= 4) ? 2 : \
+   (x <= 8) ? 3 : \
+   (x <= 16) ? 4 : \
+   (x <= 32) ? 5 : \
+   (x <= 64) ? 6 : \
+   -1
+   
 // }}}
 module	axilwr2wbsp #(
 		// {{{
 		parameter C_AXI_DATA_WIDTH	= 32,
 		parameter C_AXI_ADDR_WIDTH	= 28,
-		localparam	AXI_LSBS = $clog2(C_AXI_DATA_WIDTH/8),
+		localparam	AXI_LSBS = `CLOG2(C_AXI_DATA_WIDTH/8),
 		localparam AW			= C_AXI_ADDR_WIDTH-AXI_LSBS,
 		parameter LGFIFO                =  3,
 		localparam	DW = C_AXI_DATA_WIDTH
