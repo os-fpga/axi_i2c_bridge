@@ -82,7 +82,7 @@ module wb_width #(
                         end
                     default : out_data[0+:8] = in_data[0+:8];
                 endcase
-                out_strb = in_strb;
+                out_strb = 1'b1;
             end
         /* Case implementation, which is not scalable:
             always @(*) begin
