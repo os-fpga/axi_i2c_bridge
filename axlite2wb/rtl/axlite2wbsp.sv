@@ -37,6 +37,16 @@
 //
 //
 `default_nettype	none
+
+`define CLOG2(x) \
+   (x < 2) ? 0 : \
+   (x == 2) ? 1 : \
+   (x <= 4) ? 2 : \
+   (x <= 8) ? 3 : \
+   (x <= 16) ? 4 : \
+   (x <= 32) ? 5 : \
+   (x <= 64) ? 6 : \
+   -1
 // }}}
 module axlite2wbsp #(
 		// {{{
@@ -49,7 +59,7 @@ module axlite2wbsp #(
 		parameter	[0:0]	OPT_WRITEONLY = 1'b0,
 		parameter timeout_cycles        = 10,
 		//localparam		AXILLSB          = $clog2(C_AXI_DATA_WIDTH/8),
-		localparam      ADDR_LOWER_LIMIT = $clog2(WB_DATA_WIDTH/GRANULARITY)
+		localparam      ADDR_LOWER_LIMIT = `CLOG2(WB_DATA_WIDTH/GRANULARITY)
 		// }}}
 	) (
 		// {{{

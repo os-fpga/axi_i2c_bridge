@@ -39,7 +39,7 @@ module	axilwr2wbsp #(
 		// {{{
 		parameter C_AXI_DATA_WIDTH	= 32,
 		parameter C_AXI_ADDR_WIDTH	= 28,
-		localparam	AXI_LSBS = $clog2(C_AXI_DATA_WIDTH/8),
+		localparam	AXI_LSBS = `CLOG2(C_AXI_DATA_WIDTH/8),
 		localparam AW			= C_AXI_ADDR_WIDTH-AXI_LSBS,
 		parameter LGFIFO                =  3,
 		localparam	DW = C_AXI_DATA_WIDTH
