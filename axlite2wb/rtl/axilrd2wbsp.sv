@@ -96,15 +96,11 @@ module	axilrd2wbsp #(
 	reg			r_stb;
 	reg	[AW-1:0]	r_addr;
 
-	localparam		FLEN=(1<<LGFIFO);
-
 	
 		
 	reg			wb_pending;
-	reg	[LGFIFO:0]	wb_outstanding;
 	wire	[DW-1:0]	read_data;
 	reg			err_state;
-	reg	[LGFIFO:0]	err_loc;
 	// }}}
 	reg     [DW-1:0]        captured_read_data ;
 	// o_wb_cyc, o_wb_stb
@@ -158,19 +154,15 @@ module	axilrd2wbsp #(
 	// wb_pending, wb_outstanding
 	// {{{
 	initial	wb_pending     = 0;
-	initial	wb_outstanding = 0;
 	always @(posedge i_clk)
 	if ((w_reset)||(!o_wb_cyc)||(i_wb_err)||(err_state))
 	begin
 		wb_pending     <= 1'b0;
-		wb_outstanding <= 0;
 	end else case({ (o_wb_stb)&&(!i_wb_stall), i_wb_ack })
 	2'b01: begin
-		wb_outstanding <= wb_outstanding - 1'b1;
-		wb_pending <= (wb_outstanding >= 2);
+		wb_pending <=  1'b0;
 		end
 	2'b10: begin
-		wb_outstanding <= wb_outstanding + 1'b1;
 		wb_pending <= 1'b1;
 		end
 	default: begin end
