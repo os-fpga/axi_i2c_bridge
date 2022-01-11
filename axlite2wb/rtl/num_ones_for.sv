@@ -21,7 +21,7 @@
 
 module num_ones_for 
 #(  parameter WIDTH=4,
-    localparam COUNTER_SIZE = $clog2(WIDTH)
+    localparam COUNTER_SIZE = `CLOG2(WIDTH)
     )(
     input wire [WIDTH-1:0] A,
     output reg [COUNTER_SIZE:0] ones
