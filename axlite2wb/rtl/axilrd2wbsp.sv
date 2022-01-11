@@ -34,7 +34,8 @@
 //
 `default_nettype	none
 `define CLOG2(x) \
-   (x <= 2) ? 1 : \
+   (x < 2) ? 0 : \
+   (x == 2) ? 1 : \
    (x <= 4) ? 2 : \
    (x <= 8) ? 3 : \
    (x <= 16) ? 4 : \

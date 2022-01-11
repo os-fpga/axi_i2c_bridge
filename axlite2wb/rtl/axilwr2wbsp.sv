@@ -100,15 +100,8 @@ module	axilwr2wbsp #(
 	reg	[AW-1:0]	r_addr;
 	reg	[DW-1:0]	r_data;
 	reg	[DW/8-1:0]	r_sel;
-
-	reg			fifo_full, fifo_empty;
-
-	reg	[LGFIFO:0]	r_first, r_mid, r_last;
-	wire	[LGFIFO:0]	next_first, next_last;
 	reg			wb_pending;
 	reg	[LGFIFO:0]	wb_outstanding;
-
-	reg	[LGFIFO:0]	err_loc;
 	reg			err_state;
 
 	wire	axi_write_accepted, pending_axi_write;
@@ -216,10 +209,6 @@ module	axilwr2wbsp #(
 	else if (!o_axi_awready && o_wb_stb && i_wb_stall)
 		// Once stalled, remain stalled while the WB bus is stalled
 		o_axi_awready <= 1'b0;
-	else if (fifo_full && (r_awvalid || (!o_axi_bvalid || !i_axi_bready)))
-		// Once the FIFO is full, we must remain stalled until at
-		// least one acknowledgment has been accepted
-		o_axi_awready <= 1'b0;
 	else if ((!o_axi_bvalid || !i_axi_bready)
 			&& (r_awvalid || (i_axi_awvalid && o_axi_awready)))
 		o_axi_awready  <= 1'b1;
@@ -247,10 +236,6 @@ module	axilwr2wbsp #(
 		o_axi_wready <= 1'b0;
 	else if (!o_axi_wready && o_wb_stb && i_wb_stall)
 		// Once stalled, remain stalled while the WB bus is stalled
-		o_axi_wready <= 1'b0;
-	else if (fifo_full && (r_wvalid || (!o_axi_bvalid || !i_axi_bready)))
-		// Once the FIFO is full, we must remain stalled until at
-		// least one acknowledgment has been accepted
 		o_axi_wready <= 1'b0;
 	else if ((!o_axi_bvalid || !i_axi_bready)
 			&& (i_axi_wvalid && o_axi_wready))
@@ -338,7 +323,7 @@ module	axilwr2wbsp #(
 	// verilator lint_off UNUSED
 	wire	unused;
 	assign	unused = &{ 1'b0, i_axi_awprot,
-				fifo_empty };
+				1'b0 };
 	// verilator lint_on  UNUSED
 	// }}}
 // }}}
