@@ -29,7 +29,7 @@ module wb_width #(
     parameter   AXI_ADDR_WIDTH = 28,
     
     
-    localparam ADDR_LOWER_LIMIT = $clog2(WB_DATA_WIDTH/GRANULARITY)
+    localparam ADDR_LOWER_LIMIT = `CLOG2(WB_DATA_WIDTH/GRANULARITY)
     
     )(
     
@@ -60,7 +60,7 @@ module wb_width #(
         
         if (WB_DATA_WIDTH == 8) 
         begin
-            reg [2:0] num_ones;
+            wire [2:0] num_ones;
             integer i;
             // GRANULARITY is assumed 8
             // strobe would be 4 bits
