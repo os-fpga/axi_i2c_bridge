@@ -174,6 +174,7 @@ module axlite2wbsp #(
 	wire [(WB_DATA_WIDTH/8-1):0] i_axi_param_wstrb;
 	wire [C_AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT-1:0] i_axi_param_awaddr;
 	wire [C_AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT-1:0] i_axi_param_araddr;
+	wire [(WB_DATA_WIDTH-1):0] o_axi_param_rdata;
 
 	// This combinational logic based module converts AXI data bus width
 	// into WB data bus width and adjusts AXI strobe as well.
@@ -192,6 +193,37 @@ module axlite2wbsp #(
         .in_read_addr(i_axi_araddr),
         .out_read_addr(i_axi_param_araddr)
         );
+
+    // Assign o_axi_rdata appropriate o_axi_param_rdata
+    generate
+        if (C_AXI_DATA_WIDTH == 32)
+        begin
+            if(WB_DATA_WIDTH == 32) begin
+                assign o_axi_rdata = o_axi_param_rdata;
+            end
+            else if (WB_DATA_WIDTH == 16) begin
+                assign o_axi_rdata = {16'h0,o_axi_param_rdata};
+            end
+            else if (WB_DATA_WIDTH == 8) begin
+                assign o_axi_rdata = {24'h0,o_axi_param_rdata};
+            end
+        end
+        else if (C_AXI_DATA_WIDTH == 64)
+        begin
+            if(WB_DATA_WIDTH == 64) begin
+                assign o_axi_rdata = o_axi_param_rdata;
+            end
+            else if (WB_DATA_WIDTH == 32) begin
+                assign o_axi_rdata = {32'h0,o_axi_param_rdata};
+            end
+            else if (WB_DATA_WIDTH == 16) begin
+                assign o_axi_rdata = {48'h0,o_axi_param_rdata};
+            end
+            else if (WB_DATA_WIDTH == 8) begin
+                assign o_axi_rdata = {56'h0,o_axi_param_rdata};
+            end
+        end
+    endgenerate
 
 	// }}}
 	////////////////////////////////////////////////////////////////////////
@@ -283,7 +315,7 @@ module axlite2wbsp #(
 			//
 			.o_axi_rvalid(o_axi_rvalid),
 			.i_axi_rready(i_axi_rready),
-			.o_axi_rdata( o_axi_rdata),
+			.o_axi_rdata( o_axi_param_rdata),
 			.o_axi_rresp( o_axi_rresp),
 			//
 			.o_wb_cyc(  r_wb_cyc),
@@ -306,7 +338,7 @@ module axlite2wbsp #(
 		assign o_axi_arready = 1'b1;
 		assign o_axi_rvalid  = (i_axi_arvalid)&&(o_axi_arready);
 		assign o_axi_rresp   = (i_axi_arvalid) ? 2'b11 : 2'b00;
-		assign o_axi_rdata   = 0;
+		assign o_axi_param_rdata   = 0;
 		// }}}
 	end endgenerate
 
