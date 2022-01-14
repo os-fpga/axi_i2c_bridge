@@ -105,8 +105,8 @@ module	axilrd2wbsp #(
 	reg     [DW-1:0]        captured_read_data ;
 	// o_wb_cyc, o_wb_stb
 	// {{{
-	initial	o_wb_cyc = 1'b0;
-	initial	o_wb_stb = 1'b0;
+	//initial	o_wb_cyc = 1'b0;
+	
 	always @(posedge i_clk)
 	if ((w_reset)||((o_wb_cyc)&&(i_wb_err))||(err_state))
 		o_wb_stb <= 1'b0;
@@ -136,24 +136,23 @@ module	axilrd2wbsp #(
 	// r_stb, r_addr
 	// {{{
 	// Shadow request
-	initial	r_stb = 1'b0;
+	//initial	r_stb = 1'b0;
 	always @(posedge i_clk)
 	begin
-		if ((i_axi_arvalid)&&(o_axi_arready)&&(o_wb_stb)&&(i_wb_stall))
+		if ((w_reset)||(o_wb_cyc)&&(i_wb_err)||(err_state))
+			r_stb <= 1'b0;
+		else if ((i_axi_arvalid)&&(o_axi_arready)&&(o_wb_stb)&&(i_wb_stall))
 		begin
 			r_stb  <= 1'b1;
 			r_addr <= i_axi_araddr;
 		end else if ((!i_wb_stall)||(!o_wb_cyc))
-			r_stb <= 1'b0;
-
-		if ((w_reset)||(o_wb_cyc)&&(i_wb_err)||(err_state))
 			r_stb <= 1'b0;
 	end
 	// }}}
 
 	// wb_pending, wb_outstanding
 	// {{{
-	initial	wb_pending     = 0;
+	//initial	wb_pending     = 0;
 	always @(posedge i_clk)
 	if ((w_reset)||(!o_wb_cyc)||(i_wb_err)||(err_state))
 	begin
@@ -170,7 +169,7 @@ module	axilrd2wbsp #(
 	// }}}
 
 
-	initial	o_axi_arready = 1'b1;
+	//initial	o_axi_arready = 1'b1;
 	always @(posedge i_clk)
 	if (w_reset)
 		o_axi_arready <= 1'b1;
@@ -203,7 +202,7 @@ module	axilrd2wbsp #(
 
 	// o_axi_rresp
 	// {{{
-	initial	o_axi_rresp = 2'b00;
+	//initial	o_axi_rresp = 2'b00;
 	always @(posedge i_clk)
 	if (w_reset)
 		o_axi_rresp <= 0;
@@ -225,7 +224,7 @@ module	axilrd2wbsp #(
 
 	// err_state
 	// {{{
-	initial err_state  = 0;
+	//initial err_state  = 0;
 	always @(posedge i_clk)
 	if (w_reset)
 		err_state <= 0;
@@ -236,7 +235,7 @@ module	axilrd2wbsp #(
 
 	// o_axi_rvalid
 	// {{{
-	initial	o_axi_rvalid = 1'b0;
+	//initial	o_axi_rvalid = 1'b0;
 	always @(posedge i_clk)
 	if (w_reset)
 		o_axi_rvalid <= 0;
