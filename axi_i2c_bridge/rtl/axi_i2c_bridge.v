@@ -11,7 +11,13 @@
 `include "../../axlite2wb/rtl/wb_width.sv"
 `include "../../axlite2wb/rtl/num_ones_for.sv"
 
-module axi_i2c_bridge 
+module axi_i2c_bridge #(
+    parameter C_AXI_DATA_WIDTH	= 32,// Width of the AXI R&W data
+    parameter C_AXI_ADDR_WIDTH	= 28,	// AXI Address width
+    parameter WB_DATA_WIDTH     = 8,
+    parameter GRANULARITY       = 8 // Wishbone data bus granularity. Only 8 bit support is yet available
+    
+)
 	(
 		clk,	// System clock
 		axi_reset_n,
@@ -68,14 +74,14 @@ input axi_reset_n;
 		// {{{
 input       axi_awvalid;
 output      axi_awready;
-input[31:0] axi_awaddr;
+input[C_AXI_ADDR_WIDTH-1:0] axi_awaddr;
 input[2:0]  axi_awprot;
 		// }}}
 		// AXI write data channel signals
 		// {{{
 input	    axi_wvalid;
 output	    axi_wready; 
-input[31:0] axi_wdata;
+input[C_AXI_DATA_WIDTH-1:0] axi_wdata;
 input[3:0]  axi_wstrb;
 		// }}}
 		// AXI write response channel signals
@@ -88,14 +94,14 @@ output[1:0] axi_bresp;
 		// {{{
 input       axi_arvalid;
 output	    axi_arready;
-input[31:0] axi_araddr;
+input[C_AXI_ADDR_WIDTH-1:0] axi_araddr;
 input[2:0]  axi_arprot;
 		// }}}
 		// AXI read data channel signals
 		// {{{
 output      axi_rvalid;
 input       axi_rready;
-output[31:0]axi_rdata;
+output[C_AXI_DATA_WIDTH-1:0]axi_rdata;
 output[1:0] axi_rresp;
 
 input  scl_pad_i;       // SCL-line input
@@ -111,7 +117,7 @@ output sda_padoen_o;
 	wire  clk;
 	reg  rstn;
 
-	wire [31:0] adr;
+	wire [C_AXI_ADDR_WIDTH-1:0] adr;
 	wire [ 7:0] dat_i, dat_o, dat0_i, dat1_i;
 	wire we;
 	wire stb;
@@ -133,14 +139,19 @@ output sda_padoen_o;
 	assign sda_pad_o = sda_o;       // SDA-line output (always 1'b0)
 	assign sda_padoen_o = sda_oen;
 	
-	wire [3:0]	wb_sel;
+	wire [WB_DATA_WIDTH/8 - 1:0]	wb_sel;
 	//
 
 	wire wb_bridge_reset ;
 	
-	axlite2wbsp axit_to_wb_bridge
-	
-	      (
+	axlite2wbsp 
+        #(
+        .C_AXI_DATA_WIDTH(C_AXI_DATA_WIDTH),
+        .C_AXI_ADDR_WIDTH(C_AXI_ADDR_WIDTH),    
+        .WB_DATA_WIDTH(WB_DATA_WIDTH), 
+        .GRANULARITY(GRANULARITY)
+        ) 
+        axit_to_wb_bridge (
 		// {{{
 		.i_clk(clk),	// System clock
 		.i_axi_reset_n(axi_reset_n),
