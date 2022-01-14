@@ -108,8 +108,8 @@ module	axilwr2wbsp #(
 
 	// o_wb_cyc, o_wb_stb
 	// {{{
-	initial	o_wb_cyc = 1'b0;
-	initial	o_wb_stb = 1'b0;
+	//initial	o_wb_cyc = 1'b0;
+	//initial	o_wb_stb = 1'b0;
 	always @(posedge i_clk)
 	if ((w_reset)||((o_wb_cyc)&&(i_wb_err))||(err_state))
 		o_wb_stb <= 1'b0;
@@ -146,27 +146,31 @@ module	axilwr2wbsp #(
 
 	// r_awvalid, r_addr
 	// {{{
-	initial	r_awvalid = 1'b0;
+	//initial	r_awvalid = 1'b0;
 	always @(posedge i_clk)
 	begin
-		if ((i_axi_awvalid)&&(o_axi_awready))
+
+		if (w_reset)
+			r_awvalid <= 1'b0;
+		else if ((i_axi_awvalid)&&(o_axi_awready))
 		begin
 			r_addr <= i_axi_awaddr;
 			r_awvalid <= (!axi_write_accepted);
 		end else if (axi_write_accepted)
 			r_awvalid <= 1'b0;
 
-		if (w_reset)
-			r_awvalid <= 1'b0;
 	end
 	// }}}
 
 	// r_wvalid
 	// {{{
-	initial	r_wvalid = 1'b0;
+	//initial	r_wvalid = 1'b0;
 	always @(posedge i_clk)
 	begin
-		if ((i_axi_wvalid)&&(o_axi_wready))
+
+		if (w_reset)
+			r_wvalid <= 1'b0;
+		else if ((i_axi_wvalid)&&(o_axi_wready))
 		begin
 			r_data <= i_axi_wdata;
 			r_sel  <= i_axi_wstrb;
@@ -174,14 +178,12 @@ module	axilwr2wbsp #(
 		end else if (axi_write_accepted)
 			r_wvalid <= 1'b0;
 
-		if (w_reset)
-			r_wvalid <= 1'b0;
 	end
 	// }}}
 
 	// o_axi_awready
 	// {{{
-	initial	o_axi_awready = 1'b1;
+	//initial	o_axi_awready = 1'b1;
 	always @(posedge i_clk)
 	if (w_reset)
 		o_axi_awready <= 1'b1;
@@ -209,7 +211,7 @@ module	axilwr2wbsp #(
 
 	// o_axi_wready
 	// {{{
-	initial	o_axi_wready = 1'b1;
+	//initial	o_axi_wready = 1'b1;
 	always @(posedge i_clk)
 	if (w_reset)
 		o_axi_wready <= 1'b1;
@@ -239,7 +241,7 @@ module	axilwr2wbsp #(
 
 	// wb_pending, wb_outstanding
 	// {{{
-	initial	wb_pending     = 0;
+	//initial	wb_pending     = 0;
 	always @(posedge i_clk)
 	if ((w_reset)||(!o_wb_cyc)||(i_wb_err)||(err_state))
 	begin
@@ -260,48 +262,53 @@ module	axilwr2wbsp #(
 
 	// o_axi_bresp
 	// {{{
-	initial	o_axi_bresp = 2'b00;
+	//initial	o_axi_bresp = 2'b00;
 	always @(posedge i_clk)
-	if (w_reset)
-		o_axi_bresp <= 0;
-	else if ((!o_axi_bvalid)||(i_axi_bready))
 	begin
-		if ((!err_state)&&((!o_wb_cyc)||(!i_wb_err)))
-			o_axi_bresp <= 2'b00;
-		else if ((!err_state)&&(o_wb_cyc)&&(i_wb_err))
-		begin
-			o_axi_bresp <= 2'b10;
-		end else if (err_state)
-		begin
-			o_axi_bresp <= 2'b10;
-		end else
-			o_axi_bresp <= 0;
+	  if (w_reset)
+		  o_axi_bresp <= 0;
+	  else if ((!o_axi_bvalid)||(i_axi_bready))
+	  begin
+		  if ((!err_state)&&((!o_wb_cyc)||(!i_wb_err)))
+			  o_axi_bresp <= 2'b00;
+		  else if ((!err_state)&&(o_wb_cyc)&&(i_wb_err))
+		  begin
+			  o_axi_bresp <= 2'b10;
+		  end else if (err_state)
+		  begin
+			  o_axi_bresp <= 2'b10;
+		  end else
+			  o_axi_bresp <= 0;
+	  end
 	end
 	// }}}
 
 	// err_state
 	// {{{
-	initial err_state  = 0;
+	//initial err_state  = 0;
 	always @(posedge i_clk)
-	if (w_reset)
-		err_state <= 0;
-	else if ((o_wb_cyc)&&(i_wb_err))
-		err_state <= 1'b1;
-	else err_state <= 0;	
-		
+	begin
+	  if (w_reset)
+		  err_state <= 0;
+	  else if ((o_wb_cyc)&&(i_wb_err))
+		  err_state <= 1'b1;
+	  else err_state <= 0;	
+	end
 	// }}}
 
 	// o_axi_bvalid
 	// {{{
-	initial	o_axi_bvalid = 1'b0;
+	//initial	o_axi_bvalid = 1'b0;
 	always @(posedge i_clk)
-	if (w_reset)
-		o_axi_bvalid <= 0;
-	else if ((o_wb_cyc)&&((i_wb_ack)||(i_wb_err)))
-		o_axi_bvalid <= 1'b1;
-	else if ((o_axi_bvalid)&&(i_axi_bready))
 	begin
-		o_axi_bvalid <= 1'b0;
+	  if (w_reset)
+		  o_axi_bvalid <= 0;
+	  else if ((o_wb_cyc)&&((i_wb_ack)||(i_wb_err)))
+		  o_axi_bvalid <= 1'b1;
+	  else if ((o_axi_bvalid)&&(i_axi_bready))
+	  begin
+		  o_axi_bvalid <= 1'b0;
+	  end
 	end
 	// }}}
 

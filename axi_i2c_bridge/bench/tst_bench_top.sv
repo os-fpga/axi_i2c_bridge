@@ -342,7 +342,16 @@ task read_from_i2c_slave();
 	      end
 	      else blocking_read(read_sr_addr,0,-1);  
      end
-     else  if(state == (initial_state+6)) begin
+     else if(state == (initial_state+6))  blocking_write(write_cr_addr,{8'b00100000});
+     else if(state == (initial_state+7))  blocking_read(read_sr_addr,1,-1);     // read the status register for TIP Flag slave address with write flag
+     else if(state == (initial_state+8))  begin
+	      if((read_data & {8'b00000010}) == 0) begin
+		$display(" Received data from I2C ");
+		state += 1;
+	      end
+	      else blocking_read(read_sr_addr,0,-1);  
+     end
+     else  if(state == (initial_state+9)) begin
 	  //$display(" Data Received After Read ",read_data);
 	  initial_state += 1;
 	  state = initial_state;  

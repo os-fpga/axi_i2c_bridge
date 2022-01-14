@@ -106,7 +106,7 @@ module	wbarbiter #(
 	reg	r_a_owner;
 
 	assign o_cyc = (r_a_owner) ? i_a_cyc : i_b_cyc;
-	initial	r_a_owner = 1'b1;
+	//initial	r_a_owner = 1'b1;
 
 	generate if (SCHEME == "PRIORITY")
 	begin : PRI
@@ -123,15 +123,19 @@ module	wbarbiter #(
 	begin : ALT
 
 		reg	last_owner;
-		initial	last_owner = 1'b0;
+		//initial	last_owner = 1'b0;
 		always @(posedge i_clk)
-			if ((i_a_cyc)&&(r_a_owner))
+			 if(i_reset)
+				last_owner <= 1'b0; 
+			 else if ((i_a_cyc)&&(r_a_owner))
 				last_owner <= 1'b1;
 			else if ((i_b_cyc)&&(!r_a_owner))
 				last_owner <= 1'b0;
 
 		always @(posedge i_clk)
-			if ((!i_a_cyc)&&(!i_b_cyc))
+			if(i_reset)
+				r_a_owner <= 1'b1;
+			else if ((!i_a_cyc)&&(!i_b_cyc))
 				r_a_owner <= !last_owner;
 			else if ((r_a_owner)&&(!i_a_cyc))
 			begin
@@ -150,7 +154,9 @@ module	wbarbiter #(
 	end else // if (SCHEME == "LAST")
 	begin : LST
 		always @(posedge i_clk)
-			if ((!i_a_cyc)&&(i_b_stb))
+			if(i_reset)
+				r_a_owner <= 1'b1;
+			else if ((!i_a_cyc)&&(i_b_stb))
 				r_a_owner <= 1'b0;
 			else if ((!i_b_cyc)&&(i_a_stb))
 				r_a_owner <= 1'b1;
