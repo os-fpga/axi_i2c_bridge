@@ -144,7 +144,7 @@ module axlite2wbsp #(
 	// timout_counter
 	reg 	[7:0] timeout_cnt;
 	
-	always @(posedge i_clk,negedge i_axi_reset_n)begin
+	always @(posedge i_clk)begin // ,negedge i_axi_reset_n
 	      if(!i_axi_reset_n)begin
 		timeout_cnt <= 0;
 	      end

@@ -161,7 +161,7 @@ output sda_padoen_o;
 		.i_axi_awvalid(axi_awvalid),
 		.o_axi_awready(axi_awready),
 		.i_axi_awaddr(axi_awaddr),
-		.i_axi_awprot(axi_arprot),
+		.i_axi_awprot(axi_awprot),
 		// }}}
 		// AXI write data channel signals
 		// {{{

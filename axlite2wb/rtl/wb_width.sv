@@ -46,12 +46,12 @@ module wb_width #(
     output reg  [AXI_ADDR_WIDTH-ADDR_LOWER_LIMIT-1:0] out_read_addr
     );
     
-    always @(in_write_addr,in_read_addr)
-    begin
-        out_write_addr = in_write_addr[AXI_ADDR_WIDTH-1:ADDR_LOWER_LIMIT];
+    //always @(in_write_addr,in_read_addr)
+    //begin
+    assign    out_write_addr = in_write_addr[AXI_ADDR_WIDTH-1:ADDR_LOWER_LIMIT];
         
-        out_read_addr = in_read_addr[AXI_ADDR_WIDTH-1:ADDR_LOWER_LIMIT];
-    end
+    assign    out_read_addr = in_read_addr[AXI_ADDR_WIDTH-1:ADDR_LOWER_LIMIT];
+    //end
     
     // 2 x 4 - 1 = 7 cases
     
@@ -60,6 +60,7 @@ module wb_width #(
         
         if (WB_DATA_WIDTH == 8) 
         begin
+            /*
             wire [2:0] num_ones;
             integer i;
             // GRANULARITY is assumed 8
@@ -77,14 +78,15 @@ module wb_width #(
                             if(in_strb[i] == 1) 
                             begin
                             // Assign valid data byte to output data byte;
-                                out_data[0+:8] = in_data[i*8+:8];
+                                out_data[0+:8] <= in_data[i*8+:8];
                             end
+                            //else out_data[0+:8] <= out_data[0+:8] ;
                         end
-                    default : out_data[0+:8] = in_data[0+:8];
+                    default : out_data[0+:8] <= in_data[0+:8];
                 endcase
-                out_strb = 1'b1;
-            end
-        /* Case implementation, which is not scalable:
+                out_strb <= 1'b1;
+            end */
+        // Case implementation, which is not scalable:
             always @(*) begin
                 case(in_strb)
                     4'b0001 : out_data = in_data[7:0]; 
@@ -95,7 +97,7 @@ module wb_width #(
                 endcase
                 out_strb = 1'b1;
             end
-            */
+            
         end
         
 //        else if (WB_DATA_WIDTH == 16) begin
