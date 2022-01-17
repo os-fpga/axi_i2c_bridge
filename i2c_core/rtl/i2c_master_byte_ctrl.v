@@ -273,7 +273,7 @@ module i2c_master_byte_ctrl (
 	            end
 
 	        ST_WRITE:
-	          if (core_ack)
+	          if (core_ack) begin
 	            if (cnt_done)
 	              begin
 	                  c_state  <= #1 ST_ACK;
@@ -285,7 +285,7 @@ module i2c_master_byte_ctrl (
 	                  core_cmd <= #1 `I2C_CMD_WRITE; // write next bit
 	                  shift    <= #1 1'b1;
 	              end
-
+				end
 	        ST_READ:
 	          if (core_ack)
 	            begin
