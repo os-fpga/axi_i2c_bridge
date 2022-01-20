@@ -52,14 +52,17 @@ module axlite2wbsp #(
 		// {{{
 		parameter C_AXI_DATA_WIDTH	= 32,// Width of the AXI R&W data
 		parameter C_AXI_ADDR_WIDTH	= 28,	// AXI Address width
-		parameter WB_DATA_WIDTH     = 8,
-		parameter GRANULARITY       = 8, // Wishbone data bus granularity. Only 8 bit support is yet available
-		parameter		LGFIFO = 4,
-		parameter	[0:0]	OPT_READONLY  = 1'b0,
-		parameter	[0:0]	OPT_WRITEONLY = 1'b0,
+		parameter WB_DATA_WIDTH     	= 8,
+		parameter GRANULARITY       	= 8, // Wishbone data bus granularity. Only 8 bit support is yet available
+		parameter LGFIFO 		= 4,
+		parameter OPT_READONLY  	= 1'b0,
+		parameter OPT_WRITEONLY 	= 1'b0,
 		parameter timeout_cycles        = 10,
+		parameter ARB_SCHEME            = "ALTERNATING",
+		parameter OPT_ZERO_ON_IDLE      = 1'b0,
+		
 		//localparam		AXILLSB          = $clog2(C_AXI_DATA_WIDTH/8),
-		localparam      ADDR_LOWER_LIMIT = `CLOG2(WB_DATA_WIDTH/GRANULARITY)
+		localparam      ADDR_LOWER_LIMIT 	= `CLOG2(WB_DATA_WIDTH/GRANULARITY)
 		// }}}
 	) (
 		// {{{
@@ -301,8 +304,8 @@ module axlite2wbsp #(
 		axilrd2wbsp #(
 			// {{{
 		    .C_AXI_DATA_WIDTH(WB_DATA_WIDTH),
-			.C_AXI_ADDR_WIDTH(C_AXI_ADDR_WIDTH),
-			.LGFIFO(LGFIFO)
+		    .C_AXI_ADDR_WIDTH(C_AXI_ADDR_WIDTH),
+		    .LGFIFO(LGFIFO)
 			// }}}
 		) axi_read_decoder(
 			// {{{
@@ -385,7 +388,9 @@ module axlite2wbsp #(
 		wbarbiter #(
 			// {{{
 			
-			.DW(DW), .AW(AW) , .OPT_ZERO_ON_IDLE(1'b1)
+			.DW(DW), .AW(AW), 
+			.OPT_ZERO_ON_IDLE(OPT_ZERO_ON_IDLE),
+			.SCHEME(ARB_SCHEME)
 			// }}}
 		) readorwrite(
 			// {{{

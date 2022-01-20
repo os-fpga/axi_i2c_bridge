@@ -62,10 +62,7 @@ module	wbarbiter #(
 		// {{{
 		parameter		DW=32, AW=32,
 		parameter		SCHEME="ALTERNATING",
-		parameter [0:0]		OPT_ZERO_ON_IDLE = 1'b0,
-		parameter [31:0]	F_MAX_STALL = 3,
-		parameter [31:0]	F_MAX_ACK_DELAY = 3,
-		parameter [31:0]	F_LGDEPTH=3
+		parameter [0:0]		OPT_ZERO_ON_IDLE = 1'b0
 		// }}}
 	) (
 		// {{{
@@ -218,14 +215,7 @@ module	wbarbiter #(
 		// }}}
 	end endgenerate
 
-	// Make Verilator happy
-	// {{{
-	// verilator lint_off UNUSED
-	wire	unused;
-	assign	unused = &{ 1'b0, i_reset, F_LGDEPTH, F_MAX_STALL,
-					F_MAX_ACK_DELAY };
-	// verilator lint_on  UNUSED
-	// }}}
+	
 endmodule
 `ifndef	YOSYS
 `default_nettype wire

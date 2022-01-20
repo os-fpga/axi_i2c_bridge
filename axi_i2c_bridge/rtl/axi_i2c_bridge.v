@@ -12,12 +12,17 @@
 `include "../../axlite2wb/rtl/num_ones_for.sv"
 
 module axi_i2c_bridge #(
-    parameter C_AXI_DATA_WIDTH	= 32,// Width of the AXI R&W data
+    parameter C_AXI_DATA_WIDTH	= 32,	// Width of the AXI R&W data
     parameter C_AXI_ADDR_WIDTH	= 28,	// AXI Address width
     parameter WB_DATA_WIDTH     = 8,
-    parameter GRANULARITY       = 8 // Wishbone data bus granularity. Only 8 bit support is yet available
+    parameter GRANULARITY       = 8, 	// Wishbone data bus granularity. Only 8 bit support is yet available
+    parameter OPT_READONLY  	= 1'b0,
+    parameter OPT_WRITEONLY 	= 1'b0,
+    parameter timeout_cycles    = 10,
+    parameter ARB_SCHEME        = "ALTERNATING",
+    parameter OPT_ZERO_ON_IDLE  = 1'b0
     
-)
+	)
 	(
 		clk,	// System clock
 		axi_reset_n,
@@ -149,7 +154,12 @@ output sda_padoen_o;
         .C_AXI_DATA_WIDTH(C_AXI_DATA_WIDTH),
         .C_AXI_ADDR_WIDTH(C_AXI_ADDR_WIDTH),    
         .WB_DATA_WIDTH(WB_DATA_WIDTH), 
-        .GRANULARITY(GRANULARITY)
+        .GRANULARITY(GRANULARITY),
+        .OPT_READONLY(OPT_READONLY),
+	.OPT_WRITEONLY(OPT_WRITEONLY),
+	.timeout_cycles(timeout_cycles),
+	.ARB_SCHEME(ARB_SCHEME),
+	.OPT_ZERO_ON_IDLE(OPT_ZERO_ON_IDLE)
         ) 
         axit_to_wb_bridge (
 		// {{{
