@@ -1,3 +1,4 @@
+/*
 `include "../../i2c_core/rtl/timescale.v"
 `include "../../i2c_core/rtl/i2c_master_defines.v"
 `include "../../i2c_core/rtl/i2c_master_bit_ctrl.v"
@@ -10,6 +11,7 @@
 
 `include "../../axlite2wb/rtl/wb_width.sv"
 `include "../../axlite2wb/rtl/num_ones_for.sv"
+*/
 
 module axi_i2c_bridge #(
     parameter C_AXI_DATA_WIDTH	= 32,	// Width of the AXI R&W data
