@@ -45,7 +45,7 @@ always@(posedge sda,negedge scl,negedge rst)begin
   if(!rst) stop <= 1'b0;
   else if(scl) begin
     stop <= 1'b1;
-    $display("Stop_condition_detected from I2C slave by H");
+    //$display("Stop_condition_detected from I2C slave by H");
   end
   else begin
 	  stop <= 1'b0;
@@ -57,7 +57,7 @@ always@(negedge sda,negedge rst, negedge scl)begin
   if(!rst) start <= 1'b0;
   else if(scl) begin
     start <= 1'b1;
-    $display("Start_condition_detected from I2C slave by H");
+    //$display("Start_condition_detected from I2C slave by H");
   end
   else begin
 	  start <= 1'b0;
@@ -129,11 +129,11 @@ always@(negedge scl,negedge rst)begin
 					begin
 						if(read) begin
 						      state <= read_mem_data;
-						      $display("Mem Read Address from I2C slave %d",sr);
+						      
 						end
 						else begin
 						    state <= get_mem_data;
-						    $display("Mem write Address to I2C slave %d",sr);
+						    
 						end
 						mem_addr   <= sr;
 					end
