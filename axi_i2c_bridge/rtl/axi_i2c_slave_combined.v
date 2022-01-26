@@ -11,7 +11,7 @@
 `include "../../axlite2wb/rtl/wb_width.sv"
 `include "../../axlite2wb/rtl/num_ones_for.sv"
 `include "../bench/i2c_slave.v"
-`include "/home/users/hamza.hassan/projects/axi_i2c_bridge/axi_i2c_bridge/rtl/axi_i2c_bridge.v"
+`include "../rtl/axi_i2c_bridge.v"
 
 module axi_i2c_slave_combined
 			     #(
@@ -63,6 +63,9 @@ module axi_i2c_slave_combined
 		axi_rdata,
 		axi_rresp,
 		
+		//scl , sda , outputs
+		scl_o,
+		sda_o
 		);
 
 input clk;	// System clock
@@ -101,6 +104,8 @@ output      axi_rvalid;
 input       axi_rready;
 output[C_AXI_DATA_WIDTH-1:0]axi_rdata;
 output[1:0] axi_rresp;
+
+output	    scl_o,sda_o;
 	
 	wire scl0_oen,sda0_oen;
 	wire scl0_o  ,  sda0_o;
@@ -177,7 +182,8 @@ output[1:0] axi_rresp;
 	pullup p2(sda); // pullup sda line	
 		
 		
-		
+	assign sda_o = sda;
+	assign scl_o = scl;
 		
 		
 endmodule

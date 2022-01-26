@@ -126,6 +126,8 @@ axi_lite_master axi_lite_master_DUT(
 	parameter C_AXI_DATA_WIDTH = 32;
 	
 	wire [C_AXI_DATA_WIDTH/8-1:0]	wb_sel;
+	
+	wire sda,scl;
 
 	//
 	// Module body
@@ -170,7 +172,10 @@ axi_lite_master axi_lite_master_DUT(
 		.axi_rvalid(axi_lite_master_vif.s_axi_rvalid),
 		.axi_rready(axi_lite_master_vif.s_axi_rready),
 		.axi_rdata(axi_lite_master_vif.s_axi_rdata),
-		.axi_rresp(axi_lite_master_vif.s_axi_rresp)
+		.axi_rresp(axi_lite_master_vif.s_axi_rresp),
+		.sda_o(sda),
+		.scl_o(scl)
+		
 	
 	);
 	/*
