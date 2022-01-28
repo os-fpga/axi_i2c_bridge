@@ -107,11 +107,14 @@ output[1:0] axi_rresp;
 
 output	    scl_o,sda_o;
 	
-	wire scl0_oen,sda0_oen;
-	wire scl0_o  ,  sda0_o;
+	wire scl_oen,sda_oen_m;
+	wire scl_o_m,sda_o_m;
+	
+	wire sda_oen_s,sda_o_s;
 			
 	wire scl;	
 	wire sda;
+	wire high_impedence_condition;
 	
 	axi_i2c_bridge axi_i2c_bridge_(
 		.clk(clk),	// System clock
@@ -152,25 +155,36 @@ output	    scl_o,sda_o;
 		.axi_rresp(axi_rresp),
 		
 		.scl_pad_i(scl),
-		.scl_pad_o(scl0_o),
-		.scl_padoen_o(scl0_oen),
+		.scl_pad_o(scl_o_m),
+		.scl_padoen_o(scl_oen_m),
 		.sda_pad_i(sda),
-		.sda_pad_o(sda0_o),
-		.sda_padoen_o(sda0_oen)	
+		.sda_pad_o(sda_o_m),
+		.sda_padoen_o(sda_oen_m)	
 	
 	
 	);
 		
 
 
-	assign scl = scl0_oen ? 1'bz : scl0_o;
-        assign sda = sda0_oen ? 1'bz : sda0_o;
-        
+	assign scl = scl_oen_m ? 1'b1 : 1'b0;
+	
+	/*
+	om   os
+	 0   0   0 
+	 0   1   0
+	 1   0   0
+	 1   1   1
+	*/ 
+	 
+        assign sda = sda_oen_m & sda_oen_s;
+        //assign sda = sda0_oen ? 1'b1 : 1'b0;
 			
 	i2c_slave i2c_slave_ (
 		.scl(scl),
 		.rst(axi_reset_n),
-		.sda(sda)
+		.sda_i(sda),
+		.sda_o(sda_o_s),
+		.sda_oen(sda_oen_s)
 	);
         // create i2c lines
         
@@ -178,12 +192,19 @@ output	    scl_o,sda_o;
 	delay m0_scl (scl0_oen ? 1'bz : scl0_o, scl),
 	      m0_sda (sda0_oen ? 1'bz : sda0_o, sda);
 	*/
-	pullup p1(scl); // pullup scl line
-	pullup p2(sda); // pullup sda line	
-		
-		
+	//pullup p1(scl); // pullup scl line
+	//pullup p2(sda); // pullup sda line	
+	
+	/*	
+	if(sda_oe_m)
+	     sda = 1'b1;
+	else if(sda_oe_s)
+	     sda = 1'b1;
+	else sda = 1'b0;
+	*/	
 	assign sda_o = sda;
 	assign scl_o = scl;
+	
 		
 		
 endmodule
