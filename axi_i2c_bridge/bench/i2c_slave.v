@@ -1,4 +1,4 @@
-module i2c_slave(input scl,rst ,inout sda);
+module i2c_slave(input scl,rst ,input sda_i,output sda_o, output sda_oen);
 
 reg ld ;
 reg dec;
@@ -41,7 +41,7 @@ wire ack_state = (state == slave_addr_ack) |
 		 (state == receive_read_ack) ;
   
 //detect stop condition
-always@(posedge sda,negedge scl,negedge rst)begin
+always@(posedge sda_i,negedge scl,negedge rst)begin
   if(!rst) stop <= 1'b0;
   else if(scl) begin
     stop <= 1'b1;
@@ -53,7 +53,7 @@ always@(posedge sda,negedge scl,negedge rst)begin
 end
 
 //detect start condition
-always@(negedge sda,negedge rst, negedge scl)begin
+always@(negedge sda_i,negedge rst, negedge scl)begin
   if(!rst) start <= 1'b0;
   else if(scl) begin
     start <= 1'b1;
@@ -159,7 +159,7 @@ end
 
 //serial register logic
 always@(posedge scl)begin
-	if(!ack_state)	sr  <= {sr[6:0],sda};
+	if(!ack_state)	sr  <= {sr[6:0],sda_i};
 end
 
 //data capture register
@@ -185,7 +185,12 @@ wire high_impedence;
 */
 wire condition = (state == read_mem_data) & (mem_read_reg[7]);
 
-assign sda = !(ack_state) & !(state == read_mem_data) ? 1'bz : (state == read_mem_data) & (mem_read_reg[7]) ? 1'bz : 1'b0; 
+assign sda_oen  = !(ack_state) & !(state == read_mem_data) |
+		 (state == read_mem_data) & (mem_read_reg[7]);
+		 
+assign sda_o    = 1'b0;
+//assign   sda   =  high_impedence_condition ? 1'b1 : 1'b0;
+//assign sda = !(ack_state) & !(state == read_mem_data) ? 1'bz : (state == read_mem_data) & (mem_read_reg[7]) ? 1'bz : 1'b0; 
   		
 endmodule
 

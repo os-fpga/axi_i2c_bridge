@@ -495,27 +495,10 @@ endtask: read_from_i2c_slave
 
 task i2c_start();
 	
-	if(initial_state == 0) 	     	     write_to_i2c_slave(0,1);
-	else if(initial_state == 1) 	     write_to_i2c_slave(1,2);
-	else if(initial_state == 2) 	     write_to_i2c_slave(2,3);
-	else if(initial_state == 3) 	     write_to_i2c_slave(3,4);	
-	else if(initial_state == 4) 	     write_to_i2c_slave(4,5);
-	else if(initial_state == 5) 	     write_to_i2c_slave(5,6);
-	else if(initial_state == 6) 	     write_to_i2c_slave(6,7);
-	else if(initial_state == 7) 	     write_to_i2c_slave(7,8);
-	else if(initial_state == 8) 	     read_from_i2c_slave(0);
-	else if(initial_state == 9) 	     read_from_i2c_slave(1);
-	else if(initial_state == 10) 	     read_from_i2c_slave(2);
-	else if(initial_state == 11) 	     read_from_i2c_slave(3);
-	else if(initial_state == 12) 	     read_from_i2c_slave(4);
-	else if(initial_state == 13) 	     read_from_i2c_slave(5);
-	else if(initial_state == 14) 	     read_from_i2c_slave(6);
-	else if(initial_state == 15) 	     read_from_i2c_slave(7);
-	else if(initial_state == 16) 	     write_to_i2c_slave(1,4);
-	else if(initial_state == 17) 	     write_to_i2c_slave(2,8);
-	else if(initial_state == 18) 	     write_to_i2c_slave(3,12);	
-	else if(initial_state == 19) 	     read_from_i2c_slave(2);
-	else if(initial_state == 20) 	     read_from_i2c_slave(1);
+	if(initial_state == 0) 	     	     write_to_i2c_slave(0,10);
+	else if(initial_state == 1) 	     write_to_i2c_slave(1,20);
+	else if(initial_state == 2) 	     read_from_i2c_slave(1);
+	else if(initial_state == 3) 	     read_from_i2c_slave(0);
 	/*else if(initial_state == 1)  write_to_i2c_slave(1,8'hAD);
 	else if(initial_state == 2)  write_to_i2c_slave(0,8'hc8);
 	else if(initial_state == 3)  read_from_i2c_slave();
