@@ -1,4 +1,4 @@
-module i2c_slave(input scl,rst ,input sda_i,output sda_o, output sda_oen);
+module i2c_slave(input scl,rst ,input sda_i,output sda_o, output sda_oen ,output [7:0] mem_out);
 
 reg ld ;
 reg dec;
@@ -25,6 +25,8 @@ reg [7:0] reg_4;
 reg [7:0] reg_5;
 reg [7:0] reg_6;
 reg [7:0] reg_7;
+
+assign mem_out = {sr[2:0],state,stop,start};
 
 localparam get_slave_addr    = 3'h0;
 localparam slave_addr_ack    = 3'h1;

@@ -1,17 +1,17 @@
-`include "../../i2c_core/rtl/timescale.v"
-`include "../../i2c_core/rtl/i2c_master_defines.v"
-`include "../../i2c_core/rtl/i2c_master_bit_ctrl.v"
-`include "../../i2c_core/rtl/i2c_master_byte_ctrl.v"
-`include "../../i2c_core/rtl/i2c_master_top.v"
-`include "../../axlite2wb/rtl/axlite2wbsp.sv"
-`include "../../axlite2wb/rtl/axilwr2wbsp.sv"
-`include "../../axlite2wb/rtl/axilrd2wbsp.sv"
-`include "../../axlite2wb/rtl/wbarbiter.sv"
+//`include "../../i2c_core/rtl/timescale.v"
+//`include "../../i2c_core/rtl/i2c_master_defines.v"
+//`include "../../i2c_core/rtl/i2c_master_bit_ctrl.v"
+//`include "../../i2c_core/rtl/i2c_master_byte_ctrl.v"
+//`include "../../i2c_core/rtl/i2c_master_top.v"
+//`include "../../axlite2wb/rtl/axlite2wbsp.sv"
+//`include "../../axlite2wb/rtl/axilwr2wbsp.sv"
+//`include "../../axlite2wb/rtl/axilrd2wbsp.sv"
+//`include "../../axlite2wb/rtl/wbarbiter.sv"
 
-`include "../../axlite2wb/rtl/wb_width.sv"
-`include "../../axlite2wb/rtl/num_ones_for.sv"
-`include "../bench/i2c_slave.v"
-`include "../rtl/axi_i2c_bridge.v"
+//`include "../../axlite2wb/rtl/wb_width.sv"
+//`include "../../axlite2wb/rtl/num_ones_for.sv"
+//`include "../bench/i2c_slave.v"
+//`include "../rtl/axi_i2c_bridge.v"
 
 module axi_i2c_slave_combined
 			     #(
@@ -64,8 +64,10 @@ module axi_i2c_slave_combined
 		axi_rresp,
 		
 		//scl , sda , outputs
-		scl_o,
-		sda_o
+		scl,
+		sda,
+		sda_en,
+		scl_en
 		);
 
 input clk;	// System clock
@@ -105,17 +107,20 @@ input       axi_rready;
 output[C_AXI_DATA_WIDTH-1:0]axi_rdata;
 output[1:0] axi_rresp;
 
-output	    scl_o,sda_o;
+inout	    scl,sda;
+output      scl_en, sda_en;
+
 	
-	wire scl_oen,sda_oen_m;
+	wire scl_oen_m,sda_oen_m;
 	wire scl_o_m,sda_o_m;
 	
 	wire sda_oen_s,sda_o_s;
 			
-	wire scl;	
-	wire sda;
 	wire high_impedence_condition;
-	
+
+    assign scl_en = scl_oen_m;
+    assign sda_en = sda_oen_m;
+         	
 	axi_i2c_bridge axi_i2c_bridge_(
 		.clk(clk),	// System clock
 		.axi_reset_n(axi_reset_n),
@@ -166,7 +171,7 @@ output	    scl_o,sda_o;
 		
 
 
-	assign scl = scl_oen_m ? 1'b1 : 1'b0;
+	assign scl = scl_oen_m ? 1'bz : 1'b0;
 	
 	/*
 	om   os
@@ -176,16 +181,18 @@ output	    scl_o,sda_o;
 	 1   1   1
 	*/ 
 	 
-        assign sda = sda_oen_m & sda_oen_s;
-        //assign sda = sda0_oen ? 1'b1 : 1'b0;
-			
+        //assign sda = sda_oen_m & sda_oen_s;
+     assign sda = sda_oen_m ? 1'bz : 1'b0;
+		/*	
 	i2c_slave i2c_slave_ (
 		.scl(scl),
 		.rst(axi_reset_n),
 		.sda_i(sda),
 		.sda_o(sda_o_s),
-		.sda_oen(sda_oen_s)
+		.sda_oen(sda_oen_s),
+		.mem_out(mem_out)
 	);
+	*/
         // create i2c lines
         
         /*
@@ -202,8 +209,7 @@ output	    scl_o,sda_o;
 	     sda = 1'b1;
 	else sda = 1'b0;
 	*/	
-	assign sda_o = sda;
-	assign scl_o = scl;
+	
 	
 		
 		
